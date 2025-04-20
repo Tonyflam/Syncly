@@ -30,7 +30,9 @@ const factory = new BotClientFactory({
 });
 
 app.use(cors());
+app.use(limiter);
 app.get('/', schema);
+
 
 app.post("/execute_command",createCommandChatClient(factory), executeCommand);
 

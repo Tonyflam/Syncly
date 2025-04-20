@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Permissions } from '@open-ic/openchat-botclient-ts';
-import { DateTimeParam } from '@open-ic/openchat-botclient-ts/lib/typebox/typebox';
 
 const emptyPermissions = {
     chat: [],
@@ -24,21 +23,11 @@ export default function schema(_: Request, res: Response) {
             }),
         },
         description:
-            "This is a demonstration bot which demonstrates a variety of different approaches and techniques that bot developers can use.",
+            "This bot provides a comprehensive suite of features, including task and event management, financial data retrieval, governance tools, AI-powered utilities, and celebratory messaging, making it a versatile tool for productivity and collaboration.",
         commands: [
             {
                 name: "ping",
                 description: "say pong",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [],
-            },
-            {
-                name: "joke",
-                description: "fetch a random joke",
                 default_role: "Participant",
                 permissions: Permissions.encodePermissions({
                     ...emptyPermissions,
@@ -138,6 +127,66 @@ export default function schema(_: Request, res: Response) {
                 ],
             },
             {
+                name: "task_auto",
+                description: "AI-Powered Task Breakdown",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "goal",
+                        required: true,
+                        description: "The goal to break down into tasks.",
+                        placeholder: "Enter goal",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 100,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "task_remind",
+                description: "Set a reminder for a task at a specific date and time.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "Task ID",
+                        required: true,
+                        description: "The ID of the task to set a reminder for.",
+                        placeholder: "Enter task ID",
+                        param_type: {
+                            IntegerParam: {
+                                min_value: 1,
+                                max_value: 1000,
+                                choices: [],
+                            },
+                        },
+                    },
+                    {
+                        name: "Reminder Date & Time",
+                        required: true,
+                        description: "The date and time for the reminder.",
+                        placeholder: "Select date and time",
+                        param_type: {
+                            DateTimeParam: {
+                                future_only: true,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
                 name: "event_create",
                 description: "Create a new event",
                 default_role: "Participant",
@@ -229,19 +278,189 @@ export default function schema(_: Request, res: Response) {
                 ],
             },
             {
-                name: "file_upload",
-                description: "Upload a new file",
+                name: "note_add",
+                description: "Add a new personal note",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "Note content",
+                        required: true,
+                        description: "The content of the note",
+                        placeholder: "Enter note content",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 1000,
+                                choices: [],
+                                multi_line: true,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "note_list",
+                description: "List all your personal notes",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "note_delete",
+                description: "Delete a specific note",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "Note ID",
+                        required: true,
+                        description: "The ID of the note to delete",
+                        placeholder: "Enter note ID",
+                        param_type: {
+                            IntegerParam: {
+                                min_value: 1,
+                                max_value: 1000,
+                                choices: [],
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "CkBTC_price",
+                description: "Provide the latest CkBTC price from a reliable source.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "icp_price",
+                description: "Fetch current ICP/USD and ICP/XDR rates.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            
+            {
+                name: "summarize",
+                description: "Uses GROQ to condense long threads (e.g., DAO discussions).",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "thread",
+                        required: true,
+                        description: "The thread to summarize",
+                        placeholder: "Enter thread",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 5000,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "icp_supply",
+                description: "Show circulating and total ICP supply.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "network_status",
+                description: "Fetch key ICP network stats (TPS, nodes, subnets, memory).",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "node_map",
+                description: "Visualize global node locations as a map image.",
                 default_role: "Participant",
                 permissions: Permissions.encodePermissions({
                     ...emptyPermissions,
                     message: ["File"],
                 }),
+                params: [],
+            },
+            {
+                name: "proposals",
+                description: "List active governance proposals.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "neuron_info",
+                description: "Check neuron voting power, age, and dissolving status.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
                 params: [
                     {
-                        name: "File Name",
+                        name: "Neuron ID",
                         required: true,
-                        description: "The name of the file to upload",
-                        placeholder: "Enter file name",
+                        description: "The ID of the neuron to check.",
+                        placeholder: "Enter neuron ID",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 10000,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "canister_search",
+                description: "Find canisters by ID.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "Canister ID",
+                        required: true,
+                        description: "The ID of the canister to search for.",
+                        placeholder: "Enter canister ID ",
                         param_type: {
                             StringParam: {
                                 min_length: 1,
@@ -254,8 +473,8 @@ export default function schema(_: Request, res: Response) {
                 ],
             },
             {
-                name: "file_list",
-                description: "List all uploaded files",
+                name: "subnet_versions",
+                description: "Track the latest replica versions and their subnet percentages.",
                 default_role: "Participant",
                 permissions: Permissions.encodePermissions({
                     ...emptyPermissions,
@@ -264,36 +483,64 @@ export default function schema(_: Request, res: Response) {
                 params: [],
             },
             {
-                name: "file_share",
-                description: "Share a file with a recipient",
+                name: "cycles_calc",
+                description: "Convert ICP to cycles based on the latest conversion rates.",
                 default_role: "Participant",
                 permissions: Permissions.encodePermissions({
                     ...emptyPermissions,
-                    message: ["File"],
+                    message: ["Text"],
                 }),
                 params: [
                     {
-                        name: "File ID",
+                        name: "Amount",
                         required: true,
-                        description: "The ID of the file to share",
-                        placeholder: "Enter file ID",
+                        description: "The amount of ICP to convert to cycles.",
+                        placeholder: "Enter amount of ICP",
                         param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 10000,
                                 choices: [],
+                                multi_line: false,
                             },
                         },
-                    },
-                    {
-                        name: "Recipient",
-                        required: true,
-                        description: "The user to share the file with",
-                        placeholder: "Select a recipient",
-                        param_type: "UserParam",
                     }
                 ],
             },
+            
+            {
+                name: "shoutout",
+                description: "Post a celebratory message for a user.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "User",
+                        required: true,
+                        description: "The user to give a shoutout to.",
+                        placeholder: "Select a user",
+                        param_type: "UserParam",
+                    },
+                    {
+                        name: "Achievement",
+                        required: true,
+                        description: "The achievement to celebrate.",
+                        placeholder: "Enter achievement",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 500,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            
         ],
     });
 }

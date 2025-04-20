@@ -12,16 +12,24 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@dfinity/identity": "^2.4.1",
     "@open-ic/openchat-botclient-ts": "^1.0.29",
+    "@types/dockerode": "^3.3.38",
     "axios": "^1.8.4",
+    "canvas": "^3.1.0",
     "cors": "^2.8.5",
+    "dockerode": "^4.0.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "express-rate-limit": "^7.5.0"
+    "express-rate-limit": "^7.5.0",
+    "googleapis": "^148.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^22.13.16",
     "nodemon": "^3.1.9",
