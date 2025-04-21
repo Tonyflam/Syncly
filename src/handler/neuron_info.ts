@@ -28,9 +28,10 @@ export async function handleNeuronInfo(req: withBotClient, res: Response) {
 
     if (!neuronId) {
         const errorMessage = '❌ Usage: /neuron_info [neuron_id]';
-        const errorTextMessage = await client.createTextMessage(errorMessage);
-        await client.sendMessage(errorTextMessage);
-        return res.status(400).json({ error: errorMessage });
+        const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+        return res.status(200).json({
+            message: errorTextMessage.toResponse(),
+        });
     }
 
     try {
@@ -138,7 +139,7 @@ export async function handleNeuronInfo(req: withBotClient, res: Response) {
         }
 
         try {
-            const errorTextMessage = await client.createTextMessage(errorMessage);
+            const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
             await client.sendMessage(errorTextMessage);
         } catch (messageError) {
             console.error('Error sending error message:', messageError);

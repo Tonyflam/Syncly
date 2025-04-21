@@ -26,317 +26,6 @@ export default function schema(_: Request, res: Response) {
             "This bot provides a comprehensive suite of features, including task and event management, financial data retrieval, governance tools, AI-powered utilities, and celebratory messaging, making it a versatile tool for productivity and collaboration.",
         commands: [
             {
-                name: "ping",
-                description: "say pong",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [],
-            },
-            {
-                name: "task_create",
-                description: "Create a new task",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Task name",
-                        required: true,
-                        description: "The name of the task",
-                        placeholder: "Enter task name",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 100,
-                                choices: [],
-                                multi_line: false,
-                            },
-                        },
-                    },
-                    {
-                        name: "Description",
-                        required: true,
-                        description: "The name of the task",
-                        placeholder: "Enter task name",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 1500,
-                                choices: [],
-                                multi_line: false,
-                            },
-                        },
-                    },
-                    {
-                        name: "Due date",
-                        required: true,
-                        description: "The due date of the task",
-                        placeholder: "Please select the due date",
-                        param_type: {
-                            DateTimeParam: {
-                                future_only: true,
-                            },
-                        },
-                    },
-                    {
-                        name: "assignee",
-                        required: true,
-                        description: "The user to assign the task to",
-                        placeholder: "Please select a user",
-                        param_type: "UserParam",
-                    }
-                ],
-            },
-            {
-                name: "task_list",
-                description: "List all tasks",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [],
-            },
-            {
-                name: "task_complete",
-                description: "Mark a task as complete",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "task_id",
-                        required: true,
-                        description: "The ID of the task to mark as complete",
-                        placeholder: "Enter task ID",
-                        param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
-                                choices: [],
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "task_auto",
-                description: "AI-Powered Task Breakdown",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "goal",
-                        required: true,
-                        description: "The goal to break down into tasks.",
-                        placeholder: "Enter goal",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 100,
-                                choices: [],
-                                multi_line: false,
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "task_remind",
-                description: "Set a reminder for a task at a specific date and time.",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Task ID",
-                        required: true,
-                        description: "The ID of the task to set a reminder for.",
-                        placeholder: "Enter task ID",
-                        param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
-                                choices: [],
-                            },
-                        },
-                    },
-                    {
-                        name: "Reminder Date & Time",
-                        required: true,
-                        description: "The date and time for the reminder.",
-                        placeholder: "Select date and time",
-                        param_type: {
-                            DateTimeParam: {
-                                future_only: true,
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "event_create",
-                description: "Create a new event",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Event name",
-                        required: true,
-                        description: "The name of the event",
-                        placeholder: "Enter event name",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 100,
-                                choices: [],
-                                multi_line: false,
-                            },
-                        },
-                    },
-                    {
-                        name: "Date & Time",
-                        required: true,
-                        description: "The date and time of the event",
-                        placeholder: "Enter date and time",
-                        param_type: {
-                            DateTimeParam: {
-                                future_only: true,
-                            },
-                        },
-                    },
-                    {
-                        name: "Participants",
-                        required: true,
-                        description: "The participants of the event",
-                        placeholder: "Select participants",
-                        param_type: "UserParam",
-                    },
-                    {
-                        name: "Event description",
-                        required: true,
-                        description: "A brief description of the event",
-                        placeholder: "Enter event description",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 500,
-                                choices: [],
-                                multi_line: true,
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "event_list",
-                description: "List all events",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [],
-            },
-            {
-                name: "event_remind",
-                description: "Send a reminder for an event",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Event ID",
-                        required: true,
-                        description: "The ID of the event to remind",
-                        placeholder: "Enter event ID",
-                        param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
-                                choices: [],
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "note_add",
-                description: "Add a new personal note",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Note content",
-                        required: true,
-                        description: "The content of the note",
-                        placeholder: "Enter note content",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 1000,
-                                choices: [],
-                                multi_line: true,
-                            },
-                        },
-                    }
-                ],
-            },
-            {
-                name: "note_list",
-                description: "List all your personal notes",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [],
-            },
-            {
-                name: "note_delete",
-                description: "Delete a specific note",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "Note ID",
-                        required: true,
-                        description: "The ID of the note to delete",
-                        placeholder: "Enter note ID",
-                        param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
-                                choices: [],
-                            },
-                        },
-                    }
-                ],
-            },
-            {
                 name: "CkBTC_price",
                 description: "Provide the latest CkBTC price from a reliable source.",
                 default_role: "Participant",
@@ -357,31 +46,6 @@ export default function schema(_: Request, res: Response) {
                 params: [],
             },
             
-            {
-                name: "summarize",
-                description: "Uses GROQ to condense long threads (e.g., DAO discussions).",
-                default_role: "Participant",
-                permissions: Permissions.encodePermissions({
-                    ...emptyPermissions,
-                    message: ["Text"],
-                }),
-                params: [
-                    {
-                        name: "thread",
-                        required: true,
-                        description: "The thread to summarize",
-                        placeholder: "Enter thread",
-                        param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 5000,
-                                choices: [],
-                                multi_line: false,
-                            },
-                        },
-                    }
-                ],
-            },
             {
                 name: "icp_supply",
                 description: "Show circulating and total ICP supply.",
@@ -497,20 +161,28 @@ export default function schema(_: Request, res: Response) {
                         description: "The amount of ICP to convert to cycles.",
                         placeholder: "Enter amount of ICP",
                         param_type: {
-                            StringParam: {
-                                min_length: 1,
-                                max_length: 10000,
+                            IntegerParam: {
+                                min_value: 1,
+                                max_value: 1000,
                                 choices: [],
-                                multi_line: false,
                             },
                         },
                     }
                 ],
             },
-            
             {
-                name: "shoutout",
-                description: "Post a celebratory message for a user.",
+                name: "icp_stats",
+                description: "Shows ICP transaction volume, burn rate, and circulating supply.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "proposal_stats",
+                description: "Shows participation rate and voting power distribution for a proposal.",
                 default_role: "Participant",
                 permissions: Permissions.encodePermissions({
                     ...emptyPermissions,
@@ -518,27 +190,175 @@ export default function schema(_: Request, res: Response) {
                 }),
                 params: [
                     {
-                        name: "User",
+                        name: "proposal_id",
                         required: true,
-                        description: "The user to give a shoutout to.",
-                        placeholder: "Select a user",
-                        param_type: "UserParam",
-                    },
-                    {
-                        name: "Achievement",
-                        required: true,
-                        description: "The achievement to celebrate.",
-                        placeholder: "Enter achievement",
+                        description: "The ID of the proposal to fetch stats for.",
+                        placeholder: "Enter proposal ID",
                         param_type: {
                             StringParam: {
                                 min_length: 1,
-                                max_length: 500,
+                                max_length: 100,
                                 choices: [],
                                 multi_line: false,
                             },
                         },
                     }
                 ],
+            },
+            {
+                name: "maturity_modulation",
+                description: "Checks if neuron maturity is currently boosted.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "canister_growth",
+                description: "Tracks total canister deployments over time.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "node_providers",
+                description: "Shows distribution of nodes by provider.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "energy_stats",
+                description: "Displays ICP’s energy consumption vs. traditional blockchains.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "sns_list",
+                description: "Lists all live SNS DAOs on ICP.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "sns_proposals",
+                description: "Shows active proposals in an SNS DAO.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "sns_id",
+                        required: true,
+                        description: "The Root Canister ID.",
+                        placeholder: "Enter the Root Canister ID",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 100,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "icrc_supply",
+                description: "Shows circulating supply of an ICRC token (e.g., ckETH).",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "ledger_id",
+                        required: true,
+                        description: "The ID of the ledger to fetch supply for.",
+                        placeholder: "Enter Ledger ID",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 100,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "icrc_holders",
+                description: "Top holders of an ICRC token.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [
+                    {
+                        name: "ledger_id",
+                        required: true,
+                        description: "The ID of the ledger to fetch holders for.",
+                        placeholder: "Enter Ledger ID",
+                        param_type: {
+                            StringParam: {
+                                min_length: 1,
+                                max_length: 100,
+                                choices: [],
+                                multi_line: false,
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                name: "icp_vs_eth",
+                description: "Compares ICP’s TPS, fees, and energy use vs. Ethereum.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "ii_users",
+                description: "Tracks growth of Internet Identity users.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
+            },
+            {
+                name: "help",
+                description: "Returns a list of all commands and their functions.",
+                default_role: "Participant",
+                permissions: Permissions.encodePermissions({
+                    ...emptyPermissions,
+                    message: ["Text"],
+                }),
+                params: [],
             },
             
         ],

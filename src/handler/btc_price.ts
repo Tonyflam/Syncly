@@ -29,10 +29,9 @@ export async function handleCkBTCPrice(req: withBotClient, res: Response) {
             }
         }
 
-        await client.sendMessage(
-            await client.createTextMessage(errorMessage)
-        );
-
-        res.status(500).json({ error: errorMessage });
+        const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+        return res.status(200).json({
+            message: errorTextMessage.toResponse(),
+        });
     }
 }

@@ -71,9 +71,10 @@ export async function handleICPSupply(req: withBotClient, res: Response) {
 
     const errorMessage = '❌ Failed to fetch ICP supply data. The network may be busy.';
     try {
-      await client.sendMessage(
-        await client.createTextMessage(errorMessage)
-      );
+      const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+      return res.status(200).json({
+        message: errorTextMessage.toResponse(),
+      });
     } catch (sendError) {
       console.error('Failed to send error:', sendError);
     }

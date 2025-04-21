@@ -137,8 +137,10 @@ export async function handleSubnetVersions(req: withBotClient, res: Response) {
         }
 
         try {
-            const errorTextMessage = await client.createTextMessage(errorMessage);
-            await client.sendMessage(errorTextMessage);
+            const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+            return res.status(200).json({
+                message: errorTextMessage.toResponse(),
+            });
         } catch (messageError) {
             console.error('Error sending error message:', messageError);
         }

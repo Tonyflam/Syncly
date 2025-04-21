@@ -25,9 +25,10 @@ export async function handleCanisterSearch(req: withBotClient, res: Response) {
     // Validate canister ID format (basic validation)
     if (!canisterId || !/^[a-z0-9\-]{5}-[a-z0-9\-]{5}-[a-z0-9\-]{5}-[a-z0-9\-]{5}-[a-z0-9\-]{3}$/.test(canisterId)) {
         const errorMessage = '❌ Invalid canister ID format. Expected format like: 2225w-rqaaa-aaaai-qtqca-cai';
-        const errorTextMessage = await client.createTextMessage(errorMessage);
-        await client.sendMessage(errorTextMessage);
-        return res.status(400).json({ error: errorMessage });
+        const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+        return res.status(200).json({
+            message: errorTextMessage.toResponse(),
+        });
     }
 
     try {
@@ -100,8 +101,10 @@ export async function handleCanisterSearch(req: withBotClient, res: Response) {
         }
 
         try {
-            const errorTextMessage = await client.createTextMessage(errorMessage);
-            await client.sendMessage(errorTextMessage);
+            const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+            return res.status(200).json({
+                message: errorTextMessage.toResponse(),
+            });
         } catch (messageError) {
             console.error('Error sending error message:', messageError);
         }

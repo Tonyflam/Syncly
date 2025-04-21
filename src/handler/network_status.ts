@@ -75,9 +75,10 @@ export async function handleNetworkStatus(req: withBotClient, res: Response) {
 
     const errorMessage = '❌ Failed to fetch network status. The IC API may be temporarily unavailable.';
     try {
-      await client.sendMessage(
-        await client.createTextMessage(`${errorMessage}\n\nTry again in a few minutes.`)
-      );
+      const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+      return res.status(200).json({
+        message: errorTextMessage.toResponse(),
+      });
     } catch (sendError) {
       console.error('Failed to send error:', sendError);
     }

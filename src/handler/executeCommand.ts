@@ -1,14 +1,7 @@
 import { Request, Response } from 'express';
 import { commandNotFound } from '@open-ic/openchat-botclient-ts';
-import { handlePingCommand } from './ping';
-import { taskCreate, taskList, taskComplete, taskAuto, taskRemind } from './task';
 import { withBotClient } from '../types';
-import { eventCreate, eventList, eventRemind } from './event';
-export { eventCreate, eventList, eventRemind } from './event';
-import { addNoteHandler, listNotesHandler, deleteNoteHandler } from './note';
 import { handleCkBTCPrice } from './btc_price';
-import { summarize } from './summarize';
-import { aiAct } from './aiAction';
 import { handleICPPrice } from './icp_price';
 import { handleICPSupply } from './icp_supply';
 import { handleNetworkStatus } from './network_status';
@@ -18,7 +11,20 @@ import { handleNeuronInfo } from './neuron_info';
 import { handleCanisterSearch } from './canisterSearch';
 import { handleSubnetVersions } from './subnet_versions';
 import { handleCyclesCalc } from './cycles_calc';
-import { handleShoutout } from './shoutout';
+import { handleICPStats } from './icp_stats';
+import { handleProposalStats } from './proposal-stats';
+import { handleMaturityModulation } from './maturity-modulation';
+import { handleCanisterGrowth } from './canister-growth';
+import { handleNodeProviders } from './node-providers';
+import { handleEnergyStats } from './energy-stats';
+import { handleSNSList } from './sns-list';
+import { handleSNSProposals } from './sns-proposals';
+import { handleICRCSupply } from './icrc-supply';
+import { handleICRCHolders } from './icrc-holders';
+import { handleICPVSETH } from './icp-vs-eth';
+import { handleIIUsers } from './ii-users';
+import { handleHelp } from './help';
+
 
 
 function hasBotClient(req: Request): req is withBotClient {
@@ -35,50 +41,8 @@ export default async function executeCommand(req: Request, res: Response) {
     console.log("Routing command:", client.commandName);
 
     switch (client.commandName) {
-        case 'ping':
-            await handlePingCommand(req, res);
-            break;
-        case 'task_create':
-            await taskCreate(req, res);
-            break;
-        case 'task_list':
-            await taskList(req, res);
-            break;
-        case 'task_complete':
-            await taskComplete(req, res);
-            break;
-        case 'event_create':
-            await eventCreate(req, res);
-            break;
-        case 'event_list':
-            await eventList(req, res);
-            break;
-        case 'event_remind':
-            await eventRemind(req, res);
-            break;
-        case 'note_add':
-            await addNoteHandler(req, res);
-            break;
-        case 'note_list':
-            await listNotesHandler(req, res);
-            break;
-        case 'note_delete':
-            await deleteNoteHandler(req, res);
-            break;
-        case 'btc_price':
+        case 'CkBTC_price':
             await handleCkBTCPrice(req, res);
-            break;
-        case 'task_auto':
-            await taskAuto(req, res);
-            break;
-        case 'task_remind':
-            await taskRemind(req, res);
-            break;
-        case 'summarize':
-            await summarize(req, res);
-            break;
-        case 'ai_act':
-            await aiAct(req, res);
             break;
         case 'icp_price':
             await handleICPPrice(req, res);
@@ -107,8 +71,44 @@ export default async function executeCommand(req: Request, res: Response) {
         case 'cycles_calc':
             await handleCyclesCalc(req, res);
             break;
-        case 'shoutout':
-            await handleShoutout(req, res);
+        case 'icp_stats':
+            await handleICPStats(req, res);
+            break;
+        case 'proposal_stats':
+            await handleProposalStats(req, res);
+            break;
+        case 'maturity_modulation':
+            await handleMaturityModulation(req, res);
+            break;
+        case 'canister_growth':
+            await handleCanisterGrowth(req, res);
+            break;
+        case 'node_providers':
+            await handleNodeProviders(req, res);
+            break;
+        case 'energy_stats':
+            await handleEnergyStats(req, res);
+            break;
+        case 'sns_list':
+            await handleSNSList(req, res);
+            break;
+        case 'sns_proposals':
+            await handleSNSProposals(req, res);
+            break;
+        case 'icrc_supply':
+            await handleICRCSupply(req, res);
+            break;
+        case 'icrc_holders':
+            await handleICRCHolders(req, res);
+            break;
+        case 'icp_vs_eth':
+            await handleICPVSETH(req, res);
+            break;
+        case 'ii_users':
+            await handleIIUsers(req, res);
+            break;
+        case 'help':
+            await handleHelp(req, res);
             break;
         default:
             res.status(400).send(commandNotFound());

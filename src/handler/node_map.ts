@@ -55,9 +55,10 @@ export async function handleNodeMap(req: withBotClient, res: Response) {
 
     const errorMessage = '❌ Failed to generate node map. The network data may be temporarily unavailable.';
     try {
-      await client.sendMessage(
-        await client.createTextMessage(errorMessage)
-      );
+      const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
+      return res.status(200).json({
+        message: errorTextMessage.toResponse(),
+      });
     } catch (sendError) {
       console.error('Failed to send error:', sendError);
     }
