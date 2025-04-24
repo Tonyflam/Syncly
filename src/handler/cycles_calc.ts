@@ -17,13 +17,13 @@ interface ConversionResponse {
 }
 
 export async function handleCyclesCalc(req: withBotClient, res: Response) {
-    const { botClient: client } = req;
+    const client = req.botClient;
 
     // Use the correct parameter type for validation
     const amountICP = client.decimalArg("amount");
 
     // Validate input
-    if (amountICP === undefined) {
+    if (!amountICP) {
         const errorMessage = "❌ Usage: /cycles_calc [amount] (amount must be a positive number)";
         const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
 

@@ -16,7 +16,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 const factory = new BotClientFactory({
   identityPrivateKey: process.env.IDENTITY_PRIVATE!,
@@ -26,12 +26,17 @@ const factory = new BotClientFactory({
 });
 
 app.use(cors());
-app.use(limiter);
 app.get("/bot_definition", schema);
 app.get("/", schema);
 
 app.post("/execute_command", createCommandChatClient(factory), executeCommand);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+const workspaceUrl = process.env.GITPOD_WORKSPACE_URL?.replace(
+  "://",
+  `://${PORT}-`
+);
+console.log(`Public URL: ${workspaceUrl}`);
