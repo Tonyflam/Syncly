@@ -1,8 +1,8 @@
-import { BotClient } from "@open-ic/openchat-botclient-ts";
 import axios from "axios";
 import { createCanvas } from "canvas";
 import { Response } from "express";
 import { withBotClient } from "../types";
+import { returnErrorMessage, success } from "./helper_functions";
 
 const width = 1200;
 const height = 600;
@@ -18,13 +18,6 @@ interface NodeLocation {
   total_nodes: number;
 }
 
-async function sendEphemeralErrorMessage(client: BotClient, txt: string) {
-  const msg = (await client.createTextMessage(txt)).makeEphemeral();
-  return {
-    message: msg.toResponse(),
-  };
-}
-
 export async function handleNodeMap(req: withBotClient, res: Response) {
   const client = req.botClient;
 
@@ -34,11 +27,7 @@ export async function handleNodeMap(req: withBotClient, res: Response) {
     const locations: NodeLocation[] = response.data?.locations || [];
 
     if (locations.length === 0) {
-      return res
-        .send(200)
-        .json(
-          sendEphemeralErrorMessage(client, "No boundary node data available")
-        );
+      return returnErrorMessage(res, client, "No boundary node data available");
     }
 
     // Generate map image
@@ -56,29 +45,14 @@ export async function handleNodeMap(req: withBotClient, res: Response) {
     );
     await client.sendMessage(imgMessage);
 
-    res.status(200).json({
-      message: imgMessage.toResponse(),
-    });
+    res.status(200).json(success(imgMessage));
   } catch (error) {
     console.error("Node Map Error:", error);
 
     const errorMessage =
       "❌ Failed to generate node map. The network data may be temporarily unavailable.";
-    try {
-      const errorTextMessage = (
-        await client.createTextMessage(errorMessage)
-      ).makeEphemeral();
-      return res.status(200).json({
-        message: errorTextMessage.toResponse(),
-      });
-    } catch (sendError) {
-      console.error("Failed to send error:", sendError);
-    }
 
-    res.status(500).json({
-      error: errorMessage,
-      details: error instanceof Error ? error.message : undefined,
-    });
+    return returnErrorMessage(res, client, errorMessage);
   }
 }
 
