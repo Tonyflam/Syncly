@@ -1,7 +1,8 @@
-import { Response } from 'express';
-import { withBotClient } from '../types';
-import axios, { AxiosError } from 'axios';
-import axiosRetry from 'axios-retry';
+import axios from "axios";
+import axiosRetry from "axios-retry";
+import { Response } from "express";
+import { withBotClient } from "../types";
+import { returnErrorMessage, success } from "./helper_functions";
 
 // Configure axios retry
 axiosRetry(axios, {
@@ -10,38 +11,39 @@ axiosRetry(axios, {
     return retryCount * 2000; // 2s, 4s, 6s delays
   },
   retryCondition: (error) => {
-    return axiosRetry.isNetworkError(error) || 
-           error.code === 'ECONNABORTED' ||
-           error.code === 'ETIMEDOUT';
-  }
+    return (
+      axiosRetry.isNetworkError(error) ||
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    );
+  },
 });
 
-const ICP_ENDPOINT = 'https://ic-api.internetcomputer.org/api/v3/metrics/total-ic-energy-consumption-rate-kwh';
+const ICP_ENDPOINT =
+  "https://ic-api.internetcomputer.org/api/v3/metrics/total-ic-energy-consumption-rate-kwh";
 const COMPARISON_DATA = {
   bitcoin: 707, // kWh per transaction (average)
   ethereum: 62.56, // kWh per transaction (post-merge average)
-  solana: 0.0006 // kWh per transaction (average)
+  solana: 0.0006, // kWh per transaction (average)
 };
 
 export async function handleEnergyStats(req: withBotClient, res: Response) {
   const client = req.botClient;
 
   try {
-    const response = await axios.get(`${ICP_ENDPOINT}?step=7200&format=json`, { 
+    const response = await axios.get(`${ICP_ENDPOINT}?step=7200&format=json`, {
       timeout: 15000,
       headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'ICP Governance Bot'
-      }
+        Accept: "application/json",
+        "User-Agent": "ICP Governance Bot",
+      },
     });
 
     const icpEnergyData = response.data?.energy_consumption_rate;
-    
+
     if (!icpEnergyData || icpEnergyData.length === 0) {
-      const noDataMessage = '❌ No ICP energy consumption data available.';
-      const noDataMsg = await client.createTextMessage(noDataMessage);
-      await client.sendMessage(noDataMsg);
-      return res.status(404).json({ success: false, error: noDataMessage });
+      const noDataMessage = "❌ No ICP energy consumption data available.";
+      return returnErrorMessage(res, client, noDataMessage);
     }
 
     // Get latest data point
@@ -53,65 +55,46 @@ export async function handleEnergyStats(req: withBotClient, res: Response) {
     const comparisons = {
       bitcoin: (COMPARISON_DATA.bitcoin / icpRateNum).toFixed(0),
       ethereum: (COMPARISON_DATA.ethereum / icpRateNum).toFixed(0),
-      solana: (COMPARISON_DATA.solana / icpRateNum).toFixed(2)
+      solana: (COMPARISON_DATA.solana / icpRateNum).toFixed(2),
     };
 
-    const message = `⚡ **ICP Energy Efficiency**\n\n` +
+    const message =
+      `⚡ **ICP Energy Efficiency**\n\n` +
       `🔋 **ICP Energy Rate**: ${icpRate} kWh\n\n` +
       `📊 **Compared to Traditional Blockchains**\n` +
       `- Bitcoin: ${comparisons.bitcoin}x more energy per transaction\n` +
       `- Ethereum: ${comparisons.ethereum}x more energy per transaction\n` +
       `- Solana: ${comparisons.solana}x more energy per transaction\n\n` +
-      `⏱️ **Last Updated**: ${new Date(timestamp * 1000).toLocaleString()}\n\n` +
+      `⏱️ **Last Updated**: ${new Date(
+        timestamp * 1000
+      ).toLocaleString()}\n\n` +
       `_Note: Comparisons based on average per-transaction energy consumption_`;
 
     const msg = await client.createTextMessage(message);
     await client.sendMessage(msg);
 
-    res.status(200).json({
-      success: true,
-      data: {
-        icpEnergyRate: icpRateNum,
-        comparisons,
-        timestamp,
-        formattedDate: new Date(timestamp * 1000).toISOString()
-      }
-    });
-
+    res.status(200).json(success(msg));
   } catch (error) {
-    console.error('Error fetching energy stats:', error);
+    console.error("Error fetching energy stats:", error);
 
-    let errorMessage = '❌ Failed to fetch energy consumption data';
+    let errorMessage = "❌ Failed to fetch energy consumption data";
     let statusCode = 500;
-    
+
     if (axios.isAxiosError(error)) {
       statusCode = error.response?.status || 500;
-      
-      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-        errorMessage = '⌛ Request timed out. The IC API might be busy.';
+
+      if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+        errorMessage = "⌛ Request timed out. The IC API might be busy.";
       } else if (statusCode === 404) {
-        errorMessage = '🔍 Energy data endpoint not found. API may have changed.';
+        errorMessage =
+          "🔍 Energy data endpoint not found. API may have changed.";
       } else if (statusCode === 422) {
-        errorMessage = '⚠️ Invalid request parameters.';
+        errorMessage = "⚠️ Invalid request parameters.";
       } else if (statusCode >= 500) {
-        errorMessage = '⚠️ IC API is currently unavailable. Try again later.';
+        errorMessage = "⚠️ IC API is currently unavailable. Try again later.";
       }
     }
 
-    try {
-      const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
-      return res.status(200).json({
-        message: errorTextMessage.toResponse(),
-      });
-    } catch (sendError) {
-      console.error('Failed to send error message:', sendError);
-    }
-
-    res.status(statusCode).json({
-      success: false,
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? 
-        (error as Error).message : undefined
-    });
+    return returnErrorMessage(res, client, errorMessage);
   }
 }

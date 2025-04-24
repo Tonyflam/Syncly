@@ -1,7 +1,8 @@
-import { Response } from 'express';
-import { withBotClient } from '../types';
-import axios, { AxiosError } from 'axios';
-import axiosRetry from 'axios-retry';
+import axios from "axios";
+import axiosRetry from "axios-retry";
+import { Response } from "express";
+import { withBotClient } from "../types";
+import { returnErrorMessage, success } from "./helper_functions";
 
 // Configure axios retry
 axiosRetry(axios, {
@@ -10,13 +11,15 @@ axiosRetry(axios, {
     return retryCount * 2000; // 2s, 4s, 6s delays
   },
   retryCondition: (error) => {
-    return axiosRetry.isNetworkError(error) || 
-           error.code === 'ECONNABORTED' ||
-           error.code === 'ETIMEDOUT';
-  }
+    return (
+      axiosRetry.isNetworkError(error) ||
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    );
+  },
 });
 
-const ENDPOINT = 'https://icrc-api.internetcomputer.org/api/v1/ledgers';
+const ENDPOINT = "https://icrc-api.internetcomputer.org/api/v1/ledgers";
 
 export async function handleICRCSupply(req: withBotClient, res: Response) {
   const client = req.botClient;
@@ -24,89 +27,65 @@ export async function handleICRCSupply(req: withBotClient, res: Response) {
 
   // Validate ledger ID format (matches canister ID pattern)
   if (!ledgerId || !/^([a-zA-Z0-9]{5}-){4}[a-zA-Z0-9]{3}$/.test(ledgerId)) {
-    const errorMessage = '❌ Usage: /icrc-supply <ledger_id> (must be a valid canister ID)';
-    const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
-    return res.status(200).json({
-        message: errorTextMessage.toResponse(),
-    });
+    const errorMessage =
+      "❌ Usage: /icrc-supply <ledger_id> (must be a valid canister ID)";
+    return returnErrorMessage(res, client, errorMessage);
   }
 
   try {
     const [supplyResponse, metadataResponse] = await Promise.all([
       axios.get(`${ENDPOINT}/${ledgerId}/circulating-supply.txt`, {
         timeout: 10000,
-        headers: { 'Accept': 'text/plain' },
-        responseType: 'text'
+        headers: { Accept: "text/plain" },
+        responseType: "text",
       }),
       axios.get(`${ENDPOINT}/${ledgerId}`, {
         timeout: 10000,
-        headers: { 'Accept': 'application/json' }
-      })
+        headers: { Accept: "application/json" },
+      }),
     ]);
 
     const circulatingSupply = supplyResponse.data.trim();
     const tokenMetadata = metadataResponse.data;
-    const tokenSymbol = tokenMetadata?.symbol || 'tokens';
-    const tokenName = tokenMetadata?.name || 'ICRC Token';
+    const tokenSymbol = tokenMetadata?.symbol || "tokens";
+    const tokenName = tokenMetadata?.name || "ICRC Token";
 
     // Get current timestamp since the supply endpoint doesn't provide one
     const currentTimestamp = Math.floor(Date.now() / 1000);
 
-    const message = `💰 **${tokenName} (${tokenSymbol}) Supply**\n\n` +
+    const message =
+      `💰 **${tokenName} (${tokenSymbol}) Supply**\n\n` +
       `- **Ledger ID**: \`${ledgerId}\`\n` +
       `- **Circulating Supply**: ${circulatingSupply} ${tokenSymbol}\n` +
-      `- **Last Updated**: ${new Date(currentTimestamp * 1000).toLocaleString()}\n\n` +
+      `- **Last Updated**: ${new Date(
+        currentTimestamp * 1000
+      ).toLocaleString()}\n\n` +
       `_Calculated as: Total mints - Total burns - Pre-swap balances_`;
 
     const msg = await client.createTextMessage(message);
     await client.sendMessage(msg);
 
-    res.status(200).json({
-      success: true,
-      data: {
-        ledgerId,
-        tokenName,
-        tokenSymbol,
-        circulatingSupply,
-        lastUpdated: new Date(currentTimestamp * 1000).toISOString(),
-        calculation: "Total mints - Total burns - Pre-swap balances"
-      }
-    });
-
+    res.status(200).json(success(msg));
   } catch (error) {
-    console.error('Error fetching ICRC supply data:', error);
+    console.error("Error fetching ICRC supply data:", error);
 
-    let errorMessage = '❌ Failed to fetch ICRC token supply';
+    let errorMessage = "❌ Failed to fetch ICRC token supply";
     let statusCode = 500;
-    
+
     if (axios.isAxiosError(error)) {
       statusCode = error.response?.status || 500;
-      
-      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-        errorMessage = '⌛ Request timed out. The ICRC API might be busy.';
+
+      if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+        errorMessage = "⌛ Request timed out. The ICRC API might be busy.";
       } else if (statusCode === 404) {
         errorMessage = `🔍 Ledger ${ledgerId} not found.`;
       } else if (statusCode === 422) {
-        errorMessage = '⚠️ Invalid ledger ID format.';
+        errorMessage = "⚠️ Invalid ledger ID format.";
       } else if (statusCode >= 500) {
-        errorMessage = '⚠️ ICRC API is currently unavailable. Try again later.';
+        errorMessage = "⚠️ ICRC API is currently unavailable. Try again later.";
       }
     }
 
-    try {
-      const errorTextMessage = (await client.createTextMessage(errorMessage)).makeEphemeral();
-      return res.status(200).json({
-          message: errorTextMessage.toResponse(),
-      });
-    } catch (sendError) {
-      console.error('Failed to send error message:', sendError);
-    }
-
-    res.status(statusCode).json({
-      success: false,
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? 
-        (error as Error).message : undefined
-    });
+    return returnErrorMessage(res, client, errorMessage);
   }
 }
