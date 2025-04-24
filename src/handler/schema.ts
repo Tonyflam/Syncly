@@ -23,7 +23,7 @@ export default function schema(_: Request, res: Response) {
             }),
         },
         description:
-            "This bot provides a comprehensive suite of features, including task and event management, financial data retrieval, governance tools, AI-powered utilities, and celebratory messaging, making it a versatile tool for productivity and collaboration.",
+            "ICPulse delivers real-time data, governance tools, and network analytics to streamline your ICP workflow. From tracking live prices (ICP, ckBTC) and converting cycles to monitoring neuron voting power, subnet health, and SNS DAOs, it’s the Swiss Army knife for developers, node operators, and governance participants.",
         commands: [
             {
                 name: "CkBTC_price",
@@ -156,16 +156,16 @@ export default function schema(_: Request, res: Response) {
                 }),
                 params: [
                     {
-                        name: "Amount",
+                        name: "amount",
                         required: true,
                         description: "The amount of ICP to convert to cycles.",
                         placeholder: "Enter amount of ICP",
                         param_type: {
-                            IntegerParam: {
-                                min_value: 1,
-                                max_value: 1000,
+                            DecimalParam: {
+                                min_value: 0,
+                                max_value: 10000,
                                 choices: [],
-                            },
+                              },
                         },
                     }
                 ],
