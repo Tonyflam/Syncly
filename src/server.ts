@@ -31,8 +31,8 @@ app.get("/", schema);
 
 app.post("/execute_command", createCommandChatClient(factory), executeCommand);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
 });
 
 
