@@ -16,7 +16,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const PORT =  "https://syncly.onrender.com";
+const port = process.env.PORT || 4000 
 
 const factory = new BotClientFactory({
   identityPrivateKey: process.env.IDENTITY_PRIVATE!,
@@ -31,7 +31,7 @@ app.get("/", schema);
 
 app.post("/execute_command", createCommandChatClient(factory), executeCommand);
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
 
