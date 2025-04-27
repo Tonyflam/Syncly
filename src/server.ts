@@ -16,7 +16,10 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const port = process.env.PORT || 3000 
+const port = process.env.PORT as unknown as number;
+if (!port) {
+  throw new Error("PORT environment variable is not set");
+}
 
 const factory = new BotClientFactory({
   identityPrivateKey: process.env.IDENTITY_PRIVATE!,
