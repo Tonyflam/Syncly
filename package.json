@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node --max-old-space-size=256 dist/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@dfinity/identity": "^2.4.1",
     "@open-ic/openchat-botclient-ts": "^1.0.29",
