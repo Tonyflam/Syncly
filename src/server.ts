@@ -16,7 +16,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const port = process.env.PORT || 4000 
+const port = process.env.PORT || 10000 
 
 const factory = new BotClientFactory({
   identityPrivateKey: process.env.IDENTITY_PRIVATE!,
