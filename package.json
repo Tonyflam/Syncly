@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node --max-old-space-size=256 dist/server.js"
+    "start": "node dist/server.js",
+    "vercel-build": "npm run build"
   },
   "keywords": [],
   "author": "",
