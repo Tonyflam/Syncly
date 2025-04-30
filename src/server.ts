@@ -16,10 +16,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const port = process.env.PORT as unknown as number;
-if (!port) {
-  throw new Error("PORT environment variable is not set");
-}
+const port = process.env.PORT || 3000;
 
 const factory = new BotClientFactory({
   identityPrivateKey: process.env.IDENTITY_PRIVATE!,
@@ -29,13 +26,11 @@ const factory = new BotClientFactory({
 });
 
 app.use(cors());
+app.use(limiter);
 app.get("/bot_definition", schema);
 app.get("/", schema);
 
 app.post("/execute_command", createCommandChatClient(factory), executeCommand);
 
-app.listen(port, () => {
-  console.log(`Server is running on ${port}`);
-});
-
-
+// Export the Express app as a serverless function
+module.exports = app;
