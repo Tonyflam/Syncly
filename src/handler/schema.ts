@@ -377,31 +377,6 @@ export default function schema(_: Request, res: Response) {
         params: [],
       },
       {
-        name: "proposal_alerts",
-        description: "Alert users when new proposals go live. Enter 'activate' or 'deactivate' as text input.",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [
-          {
-            name: "action",
-            required: true,
-            description: "Enter 'activate' to start alerts or 'deactivate' to stop alerts.",
-            placeholder: "activate or deactivate",
-            param_type: {
-              StringParam: {
-                min_length: 7,
-                max_length: 10,
-                choices: [],
-                multi_line: false,
-              },
-            },
-          },
-        ],
-      },
-      {
         name: "summarize_proposal",
         description: "Summarize a specific proposal using its ID.",
         default_role: "Participant",
