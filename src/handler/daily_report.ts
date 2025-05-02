@@ -89,21 +89,33 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
         summary: p.summary ? p.summary.substring(0, 200) + (p.summary.length > 200 ? "..." : "") : undefined,
         status: p.status
       }));
-  
+
+      const MAX_INPUT_LENGTH = 5000; // Define a maximum input length for proposals
+
+      // Validate and truncate proposals to reduce payload size
+      const truncatedProposals = proposals.slice(0, 5).map(p => {
+        const summaryLength = p.summary?.length || 0;
+        if (summaryLength > MAX_INPUT_LENGTH) {
+          if (p.summary) {
+            p.summary = p.summary.slice(0, MAX_INPUT_LENGTH) + '...';
+          }
+        }
+        return p;
+      });
+
       const prompt = `
       Analyze these Internet Computer governance proposals and generate a VERY concise summary (1-2 sentences max).
       Focus on counting proposals by significant impact categories.
   
       Proposals:
-      ${processedProposals.map(p => `
+      ${truncatedProposals.map(p => `
       - ID: ${p.id}
         Title: ${p.title}
-        Topic: ${p.topic}
-        Status: ${p.status}
+        Topic: ${p.topic.replace("TOPIC_", "")}
         ${p.summary ? `Summary: ${p.summary}` : ''}
       `).join('\n')}
   
-      Example output format: "3 new proposals today: 2 governance changes, 1 subnet update. 2 adopted, 1 rejected."
+      Example output format: "3 new proposals today. 2 may affect staking returns. 1 proposes subnet node changes."
       `;
   
       // Ensure prompt isn't too large
@@ -114,11 +126,11 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
       const completion = await axios.post(
         GROQ_API_URL,
         {
-          model: "mixtral-8x7b-32768",
+          model: "llama3-70b-8192", // Align model with the working summarize function
           messages: [
             {
               role: "system",
-              content: "You are an expert in summarizing Internet Computer governance activity. Provide extremely concise, factual summaries focusing on impact counts and statuses."
+              content: "You are an expert in summarizing Internet Computer governance activity. Provide extremely concise, factual summaries focusing on impact counts."
             },
             {
               role: "user",
@@ -126,7 +138,7 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
             }
           ],
           temperature: 0.3,
-          max_tokens: 150
+          max_tokens: 500 // Align max_tokens with the working summarize function
         },
         {
           headers: {
