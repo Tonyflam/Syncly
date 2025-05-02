@@ -7,12 +7,12 @@ export async function handleHelp(req: withBotClient, res: Response) {
 
   const BOT_DESCRIPTION = `⚡ **ICPulse - The Intelligent Internet Computer Command Center** ⚡
 
-Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, automate governance decisions, and analyze on-chain data with cutting-edge AI insights. Built for developers, node operators, and governance participants who demand precision at blockchain speed.`;
+Your AI-powered Bot for everything ICP. Monitor real-time network vitals, automate governance decisions, and analyze on-chain data with cutting-edge AI insights. Built for developers, node operators, and governance participants who demand precision at blockchain speed.`;
 
   const commandCategories = [
     {
       name: "🌐 LIVE NETWORK MONITORING",
-      description: "Real-time network intelligence",
+      description: "Real-time network intelligence and health metrics",
       commands: [
         {
           name: "network_status",
@@ -31,12 +31,24 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           description: "Replica version tracker",
           details: "Version adoption rates across subnets\n`/subnet_versions`",
           emoji: "🔄"
+        },
+        {
+          name: "node_providers",
+          description: "Node provider breakdown",
+          details: "Distribution of nodes by provider organization\n`/node_providers`",
+          emoji: "🏢"
+        },
+        {
+          name: "energy_stats",
+          description: "Energy efficiency report",
+          details: "ICP's energy consumption vs traditional blockchains\n`/energy_stats`",
+          emoji: "🌱"
         }
       ]
     },
     {
       name: "🤖 AI-POWERED GOVERNANCE",
-      description: "AI-enhanced decision making",
+      description: "AI-enhanced decision making and analysis",
       commands: [
         {
           name: "daily_report",
@@ -53,6 +65,12 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           ai: true
         },
         {
+          name: "proposals",
+          description: "Governance proposal browser",
+          details: "Browse all proposals with status/topic filters\n`/proposals status:OPEN topic:GOVERNANCE`",
+          emoji: "🗳️"
+        },
+        {
           name: "proposal_stats",
           description: "Voting intelligence",
           details: "Participation analytics & voting power distribution\n`/proposal_stats 12345`",
@@ -62,13 +80,19 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
     },
     {
       name: "💰 TOKEN COMMAND CENTER",
-      description: "Market & economic tools",
+      description: "Market data and economic tools",
       commands: [
         {
           name: "icp_price",
           description: "Real-time ICP markets",
           details: "Price • XDR rate • 24h change • Market cap\n`/icp_price`",
           emoji: "📈"
+        },
+        {
+          name: "icp_supply",
+          description: "Supply metrics",
+          details: "Circulating supply • Total supply • Burned ICP\n`/icp_supply`",
+          emoji: "🔄"
         },
         {
           name: "btc_price",
@@ -80,13 +104,19 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           name: "cycles_calc",
           description: "Precision cycle converter",
           details: "ICP→Cycles with USD equivalents\n`/cycles_calc 10`",
-          emoji: "🔄"
+          emoji: "🧮"
+        },
+        {
+          name: "icp_stats",
+          description: "Chain statistics",
+          details: "Transaction volume • Burn rate • Supply metrics\n`/icp_stats`",
+          emoji: "📊"
         }
       ]
     },
     {
       name: "🧠 NEURON MANAGEMENT",
-      description: "Advanced neuron tools",
+      description: "Advanced neuron tools and analytics",
       commands: [
         {
           name: "neuron_info",
@@ -104,7 +134,7 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
     },
     {
       name: "🚀 DEVELOPER TOOLS",
-      description: "Builder essentials",
+      description: "Builder essentials and canister analytics",
       commands: [
         {
           name: "canister_search",
@@ -113,10 +143,58 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           emoji: "🔎"
         },
         {
+          name: "canister_growth",
+          description: "Canister deployment trends",
+          details: "Historical growth of canister count\n`/canister_growth`",
+          emoji: "📈"
+        },
+        {
+          name: "ii_users",
+          description: "Internet Identity adoption",
+          details: "Growth metrics for Internet Identity\n`/ii_users`",
+          emoji: "👤"
+        }
+      ]
+    },
+    {
+      name: "🌱 SNS ECOSYSTEM",
+      description: "SNS DAOs and token management",
+      commands: [
+        {
+          name: "sns_list",
+          description: "SNS DAO directory",
+          details: "All live SNS DAOs with basic stats\n`/sns_list`",
+          emoji: "📋"
+        },
+        {
+          name: "sns_proposals",
+          description: "SNS proposal browser",
+          details: "Active proposals in an SNS DAO\n`/sns_proposals abcde-67890`",
+          emoji: "🗳️"
+        },
+        {
+          name: "icrc_supply",
+          description: "Token supply tracker",
+          details: "Circulating supply of ICRC tokens (ckETH, etc.)\n`/icrc_supply abcde-67890`",
+          emoji: "🔄"
+        },
+        {
           name: "icrc_holders",
           description: "Token holder analysis",
           details: "Top wallets for any ICRC token\n`/icrc_holders abcde-67890`",
           emoji: "👛"
+        }
+      ]
+    },
+    {
+      name: "📊 COMPARATIVE ANALYTICS",
+      description: "Benchmarking and performance insights",
+      commands: [
+        {
+          name: "icp_vs_eth",
+          description: "ICP vs Ethereum",
+          details: "TPS • Fees • Energy use comparison\n`/icp_vs_eth`",
+          emoji: "⚖️"
         }
       ]
     }
@@ -131,9 +209,10 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
         `_${cmd.description}_\n` +
         `${cmd.details}` +
         `${cmd.ai ? "\n`🤖` AI-Powered" : ""}\n`
-      ).join("\n")
+      ).join("\n\n")
     ).join("\n\n") +
-    `\n\n💡 **Pro Tip**: Try \`/daily_report\` for AI-curated governance insights or \`/summarize_proposal [ID]\` for deep analysis!`;
+    `\n\n💡 **Pro Tip**: Try \`/daily_report\` for AI-curated governance insights or \`/summarize_proposal [ID]\` for deep analysis!\n` +
+    `🔗 **Quick Links**: [Dashboard](https://dashboard.internetcomputer.org) | [Governance](https://nns.ic0.app) | [Documentation](https://smartcontracts.org)`;
 
   const msg = (await client.createTextMessage(helpMessage)).makeEphemeral();
   res.status(200).json(success(msg));
