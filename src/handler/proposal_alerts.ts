@@ -5,11 +5,10 @@ import { returnErrorMessage, success } from "./helper_functions";
 
 const PROPOSALS_API_URL = "https://ic-api.internetcomputer.org/api/v3/proposals";
 const DEFAULT_TIMEOUT_MS = 10000;
-const ALERT_INTERVAL_MS = 30000; // 30 seconds
-const MAX_PROPOSAL_AGE_MS = 300000; // 5 minutes (consider proposals "new" if created within this window)
+const CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 
-// Track the most recent proposal ID we've alerted about
-let lastAlertedProposalId: number | null = null;
+// Track the highest proposal ID we've seen
+let highestSeenProposalId = 0;
 let alertInterval: NodeJS.Timeout | null = null;
 
 export async function handleProposalAlerts(req: withBotClient, res: Response) {
@@ -20,7 +19,7 @@ export async function handleProposalAlerts(req: withBotClient, res: Response) {
     return returnErrorMessage(
       res,
       client,
-      "❌ Invalid command. Usage:\n`/proposal_alerts activate` - Enable alerts\n`/proposal_alerts deactivate` - Disable alerts"
+      "❌ Usage: `/proposal_alerts activate` or `/proposal_alerts deactivate`"
     );
   }
 
@@ -29,25 +28,27 @@ export async function handleProposalAlerts(req: withBotClient, res: Response) {
       return returnErrorMessage(
         res,
         client,
-        "❌ Alerts are already active. Use `/proposal_alerts deactivate` to stop them first."
+        "❌ Alerts are already active. Deactivate first."
       );
     }
 
-    // Initialize by fetching the current latest proposal
+    // Initialize with current highest proposal ID
     try {
-      const latest = await fetchLatestProposal();
-      if (latest) lastAlertedProposalId = latest.id;
+      const proposals = await fetchRecentProposals(1);
+      if (proposals.length > 0) {
+        highestSeenProposalId = proposals[0].id;
+      }
     } catch (error) {
-      console.error("Error initializing proposal alerts:", error);
+      console.error("Initialization error:", error);
     }
 
-    alertInterval = setInterval(() => checkForNewProposals(client), ALERT_INTERVAL_MS);
+    alertInterval = setInterval(() => checkForNewProposals(client), CHECK_INTERVAL_MS);
 
-    const activationMessage = await client.createTextMessage(
-      "🔔 Proposal alerts activated\n\nYou will now receive notifications when new governance proposals are published."
+    const msg = await client.createTextMessage(
+      "✅ Proposal alerts activated. Monitoring for new proposals..."
     );
-    await client.sendMessage(activationMessage);
-    return res.status(200).json(success(activationMessage));
+    await client.sendMessage(msg);
+    return res.status(200).json(success(msg));
   }
 
   if (action === "deactivate") {
@@ -55,88 +56,91 @@ export async function handleProposalAlerts(req: withBotClient, res: Response) {
       return returnErrorMessage(
         res,
         client,
-        "❌ Alerts are not currently active. Use `/proposal_alerts activate` to start them."
+        "❌ Alerts aren't currently active"
       );
     }
 
     clearInterval(alertInterval);
     alertInterval = null;
-    lastAlertedProposalId = null;
+    highestSeenProposalId = 0;
 
-    const deactivationMessage = await client.createTextMessage(
-      "🔕 Proposal alerts deactivated\n\nYou will no longer receive new proposal notifications."
-    );
-    await client.sendMessage(deactivationMessage);
-    return res.status(200).json(success(deactivationMessage));
+    const msg = await client.createTextMessage("✅ Proposal alerts deactivated");
+    await client.sendMessage(msg);
+    return res.status(200).json(success(msg));
   }
 }
 
 async function checkForNewProposals(client: any) {
   try {
-    const latestProposal = await fetchLatestProposal();
-    if (!latestProposal) return;
+    // Get the 5 most recent proposals to catch any we might have missed
+    const proposals = await fetchRecentProposals(5);
+    if (proposals.length === 0) return;
 
-    const now = Date.now();
-    const proposalCreatedAt = new Date(latestProposal.created_at || (latestProposal.decided_timestamp_seconds ?? 0) * 1000).getTime();
-    const isNewProposal = (
-      latestProposal.id !== lastAlertedProposalId && 
-      (now - proposalCreatedAt) <= MAX_PROPOSAL_AGE_MS
-    );
+    // Find all proposals newer than what we've seen
+    const newProposals = proposals.filter(p => p.id > highestSeenProposalId);
+    if (newProposals.length === 0) return;
 
-    if (isNewProposal) {
-      await sendProposalAlert(client, latestProposal);
-      lastAlertedProposalId = latestProposal.id;
+    // Update our highest seen ID
+    highestSeenProposalId = proposals[0].id;
+
+    // Send alerts for each new proposal (from oldest to newest)
+    for (const proposal of newProposals.reverse()) {
+      await sendProposalAlert(client, proposal);
+      // Small delay between alerts
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   } catch (error) {
-    console.error("Error in proposal alert check:", error);
+    console.error("Proposal check error:", error);
   }
 }
 
-async function fetchLatestProposal(): Promise<Proposal | null> {
+async function fetchRecentProposals(limit: number): Promise<Proposal[]> {
   try {
-    const response = await axios.get(PROPOSALS_API_URL, {
-      params: { 
-        limit: 1, 
+    const response = await axios.get<ProposalsResponse>(PROPOSALS_API_URL, {
+      params: {
+        limit,
         include_status: ["OPEN"],
         sort: "newest",
         format: "json"
       },
       timeout: DEFAULT_TIMEOUT_MS,
       headers: {
-        "User-Agent": "ICP-Governance-Alerts/1.0"
+        "User-Agent": "ICP-Proposal-Alerts/1.0"
       }
     });
-
-    return response.data?.data?.[0] || null;
+    return response.data?.data || [];
   } catch (error) {
-    console.error("Error fetching latest proposal:", error);
-    return null;
+    console.error("Fetch error:", error);
+    return [];
   }
 }
 
 async function sendProposalAlert(client: any, proposal: Proposal) {
+  const votingEnds = proposal.deadline_timestamp_seconds
+    ? new Date(proposal.deadline_timestamp_seconds * 1000).toLocaleString()
+    : "Not specified";
+
+  const message = `📢 **New Proposal Alert** (#${proposal.id})\n\n` +
+    `*${proposal.title}*\n\n` +
+    `**Topic**: ${proposal.topic.replace("TOPIC_", "").replace(/_/g, " ")}\n` +
+    `**Status**: ${proposal.status}\n` +
+    `**Voting Ends**: ${votingEnds}\n\n` +
+    `${proposal.summary?.substring(0, 200) || "No summary provided"}...\n\n` +
+    `🔗 ${proposal.url || "Link not available"}`;
+
   try {
-    const votingEnds = proposal.deadline_timestamp_seconds 
-      ? new Date(proposal.deadline_timestamp_seconds * 1000).toLocaleString()
-      : "Not specified";
-
-    const message = `📢 **New Governance Proposal**\n\n` +
-      `🔹 **ID**: #${proposal.id}\n` +
-      `🔹 **Title**: ${proposal.title}\n` +
-      `🔹 **Category**: ${proposal.topic.replace("TOPIC_", "").replace(/_/g, " ")}\n` +
-      `🔹 **Status**: ${proposal.status}\n` +
-      `🔹 **Voting Ends**: ${votingEnds}\n\n` +
-      `📝 **Summary**: ${proposal.summary?.substring(0, 200) || "No summary provided"}...\n\n` +
-      `🔗 **View Proposal**: ${proposal.url || "Link not available"}`;
-
-    const alertMessage = await client.createTextMessage(message);
-    await client.sendMessage(alertMessage);
+    const alert = await client.createTextMessage(message);
+    await client.sendMessage(alert);
   } catch (error) {
-    console.error("Error sending proposal alert:", error);
+    console.error("Alert send error:", error);
   }
 }
 
-// Add this to your existing types
+// Keep your existing type definitions
+interface ProposalsResponse {
+  data: Proposal[];
+}
+
 interface Proposal {
   id: number;
   title: string;
@@ -145,6 +149,4 @@ interface Proposal {
   summary?: string;
   url?: string;
   deadline_timestamp_seconds?: number;
-  created_at?: string;
-  decided_timestamp_seconds?: number;
 }
