@@ -401,6 +401,31 @@ export default function schema(_: Request, res: Response) {
           },
         ],
       },
+      {
+        name: "summarize_proposal",
+        description: "Summarize a specific proposal using its ID.",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "proposal_id",
+            required: true,
+            description: "The ID of the proposal to summarize.",
+            placeholder: "Enter proposal ID",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+        ],
+      },
     ],
   });
 }
