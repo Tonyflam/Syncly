@@ -61,7 +61,7 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
       const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 86400;
       const response = await axios.get<ProposalsResponse>(PROPOSALS_API_URL, {
         params: {
-          limit: 100,
+          limit: 20,
           include_status: ["OPEN", "ADOPTED", "REJECTED", "EXECUTED"],
           min_decided_timestamp_seconds: twentyFourHoursAgo
         },
