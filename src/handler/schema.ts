@@ -366,6 +366,16 @@ export default function schema(_: Request, res: Response) {
         }),
         params: [],
       },
+      {
+        name: "daily_report",
+        description: "Provides a daily summary of governance proposals.",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [],
+      },
     ],
   });
 }
