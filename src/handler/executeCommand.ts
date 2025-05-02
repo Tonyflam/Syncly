@@ -24,6 +24,7 @@ import { handleProposals } from "./proposals";
 import { handleSNSList } from "./sns-list";
 import { handleSNSProposals } from "./sns-proposals";
 import { handleSubnetVersions } from "./subnet_versions";
+import { handleDailySummary } from "./daily_report";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -107,6 +108,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "help":
       await handleHelp(req, res);
+      break;
+    case "daily_report":
+      await handleDailySummary(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
