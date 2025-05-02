@@ -216,7 +216,7 @@ function categorizeProposals(proposals: Proposal[]): Record<string, number> {
           }
         ],
         temperature: 0.3,
-        max_tokens: 300
+        max_tokens: 500
       },
       {
         headers: {
