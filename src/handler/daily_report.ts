@@ -54,94 +54,113 @@ interface ProposalsResponse {
 }
 
 export async function handleDailySummary(req: withBotClient, res: Response) {
-  const { botClient: client } = req;
-  
-  try {
-    const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 86400;
-    const response = await axios.get<ProposalsResponse>(PROPOSALS_API_URL, {
-      params: {
-        limit: 20,
-        include_status: ["OPEN", "ADOPTED", "REJECTED", "EXECUTED"],
-        min_decided_timestamp_seconds: twentyFourHoursAgo
-      },
-      timeout: DEFAULT_TIMEOUT_MS,
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "NNS-Proposals-Bot/1.0"
-      }
-    });
-
-    const proposals = response.data?.data || [];
-
-    if (proposals.length === 0) {
-      const noProposalsMessage = "No new governance activity in the last 24 hours.";
-      const msg = await client.createTextMessage(noProposalsMessage);
-      await client.sendMessage(msg);
-      return res.status(200).json(success(msg));
-    }
-
-    // Truncate the proposals to reduce payload size
-    const truncatedProposals = proposals.slice(0, 5); // Limit to 5 proposals
-
-    const prompt = `
-    Analyze these Internet Computer governance proposals and generate a VERY concise summary (1-2 sentences max).
-    Focus on counting proposals by significant impact categories.
-
-    Proposals:
-    ${truncatedProposals.map(p => `
-    - ID: ${p.id}
-      Title: ${p.title}
-      Topic: ${p.topic.replace("TOPIC_", "")}
-      ${p.summary ? `Summary: ${p.summary}` : ''}
-    `).join('\n')}
-
-    Example output format: "3 new proposals today. 2 may affect staking returns. 1 proposes subnet node changes."
-    `;
-
-    const completion = await axios.post(
-      GROQ_API_URL,
-      {
-        model: "mixtral-8x7b-32768",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert in summarizing Internet Computer governance activity. Provide extremely concise, factual summaries focusing on impact counts."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 150
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
+    const { botClient: client } = req;
+    
+    try {
+      const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 86400;
+      const response = await axios.get<ProposalsResponse>(PROPOSALS_API_URL, {
+        params: {
+          limit: 20,
+          include_status: ["OPEN", "ADOPTED", "REJECTED", "EXECUTED"],
+          min_decided_timestamp_seconds: twentyFourHoursAgo
         },
+        timeout: DEFAULT_TIMEOUT_MS,
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "NNS-Proposals-Bot/1.0"
+        }
+      });
+  
+      const proposals = response.data?.data || [];
+  
+      if (proposals.length === 0) {
+        const noProposalsMessage = "No new governance activity in the last 24 hours.";
+        const msg = await client.createTextMessage(noProposalsMessage);
+        await client.sendMessage(msg);
+        return res.status(200).json(success(msg));
       }
-    );
-
-    const summary = completion.data.choices[0]?.message?.content || "Error generating summary";
-    const summaryMessage = `📊 Daily Governance Summary (${proposals.length} proposals)\n\n${summary}`;
-
-    const msg = await client.createTextMessage(summaryMessage);
-    await client.sendMessage(msg);
-
-    return res.status(200).json(success(msg));
-
-  } catch (error) {
-    console.error("Error generating daily summary:", error);
-
-    let errorMessage = "Failed to generate daily summary";
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      errorMessage = `API Error: ${axiosError.response?.statusText || axiosError.message}`;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
+  
+      // Process proposals to create concise input for the AI
+      const processedProposals = proposals.slice(0, 5).map(p => ({
+        id: p.id,
+        title: p.title,
+        topic: p.topic.replace("TOPIC_", ""),
+        // Truncate summary to first 200 chars if it exists
+        summary: p.summary ? p.summary.substring(0, 200) + (p.summary.length > 200 ? "..." : "") : undefined,
+        status: p.status
+      }));
+  
+      const prompt = `
+      Analyze these Internet Computer governance proposals and generate a VERY concise summary (1-2 sentences max).
+      Focus on counting proposals by significant impact categories.
+  
+      Proposals:
+      ${processedProposals.map(p => `
+      - ID: ${p.id}
+        Title: ${p.title}
+        Topic: ${p.topic}
+        Status: ${p.status}
+        ${p.summary ? `Summary: ${p.summary}` : ''}
+      `).join('\n')}
+  
+      Example output format: "3 new proposals today: 2 governance changes, 1 subnet update. 2 adopted, 1 rejected."
+      `;
+  
+      // Ensure prompt isn't too large
+      if (prompt.length > 8000) {
+        throw new Error("Prompt too large for API limits");
+      }
+  
+      const completion = await axios.post(
+        GROQ_API_URL,
+        {
+          model: "mixtral-8x7b-32768",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert in summarizing Internet Computer governance activity. Provide extremely concise, factual summaries focusing on impact counts and statuses."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 150
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${GROQ_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: DEFAULT_TIMEOUT_MS
+        }
+      );
+  
+      const summary = completion.data.choices[0]?.message?.content || "Error generating summary";
+      const summaryMessage = `📊 Daily Governance Summary (${proposals.length} proposals)\n\n${summary}`;
+  
+      const msg = await client.createTextMessage(summaryMessage);
+      await client.sendMessage(msg);
+  
+      return res.status(200).json(success(msg));
+  
+    } catch (error) {
+      console.error("Error generating daily summary:", error);
+  
+      let errorMessage = "Failed to generate daily summary";
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        errorMessage = `API Error: ${axiosError.response?.statusText || axiosError.message}`;
+        
+        // If it's a 400 error, suggest the payload might be too large
+        if (axiosError.response?.status === 400) {
+          errorMessage += ". The request may be too large - try reducing the number of proposals or summary length.";
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+  
+      return returnErrorMessage(res, client, errorMessage);
     }
-
-    return returnErrorMessage(res, client, errorMessage);
   }
-}
