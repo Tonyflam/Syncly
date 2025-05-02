@@ -25,7 +25,6 @@ import { handleSNSList } from "./sns-list";
 import { handleSNSProposals } from "./sns-proposals";
 import { handleSubnetVersions } from "./subnet_versions";
 import { handleDailySummary } from "./daily_report";
-import { handleProposalAlerts } from "./proposal_alerts";
 import { handleSummarizeProposal } from "./summarize";
 
 function hasBotClient(req: Request): req is withBotClient {
@@ -113,9 +112,6 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "daily_report":
       await handleDailySummary(req, res);
-      break;
-    case "proposal_alerts":
-      await handleProposalAlerts(req, res);
       break;
     case "summarize_proposal":
       await handleSummarizeProposal(req, res);
