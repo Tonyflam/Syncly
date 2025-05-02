@@ -11,9 +11,11 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const DEFAULT_TIMEOUT_MS = 10000;
 
+
 export async function handleSummarizeProposal(req: withBotClient, res: Response) {
   const client = req.botClient;
   const proposalId = client.stringArg("proposal_id");
+  const url = "https://dashboard.internetcomputer.org/proposal/" + proposalId;
 
   if (!proposalId || !/^\d+$/.test(proposalId)) {
     return returnErrorMessage(
@@ -116,7 +118,7 @@ Use markdown formatting for readability.`
       `${votingInfo}\n` +
       `${deadlineInfo}\n\n` +
       `${analysis}\n\n` +
-      `🔗 [View Proposal](${proposal.url || "Link not available"})`;
+      `🔗 [View Proposal](${url})`;
 
     const summaryMessage = await client.createTextMessage(message);
     await client.sendMessage(summaryMessage);
