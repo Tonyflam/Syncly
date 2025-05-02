@@ -57,6 +57,7 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
     const { botClient: client } = req;
     
     try {
+      // 1. Fetch and categorize proposals first
       const twentyFourHoursAgo = Math.floor(Date.now() / 1000) - 86400;
       const response = await axios.get<ProposalsResponse>(PROPOSALS_API_URL, {
         params: {
@@ -70,93 +71,41 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
           "User-Agent": "NNS-Proposals-Bot/1.0"
         }
       });
-  
+
       const proposals = response.data?.data || [];
-  
+
       if (proposals.length === 0) {
         const noProposalsMessage = "No new governance activity in the last 24 hours.";
         const msg = await client.createTextMessage(noProposalsMessage);
         await client.sendMessage(msg);
         return res.status(200).json(success(msg));
       }
-  
-      // Process proposals to create concise input for the AI
-      const processedProposals = proposals.slice(0, 5).map(p => ({
-        id: p.id,
-        title: p.title,
-        topic: p.topic.replace("TOPIC_", ""),
-        // Truncate summary to first 200 chars if it exists
-        summary: p.summary ? p.summary.substring(0, 200) + (p.summary.length > 200 ? "..." : "") : undefined,
-        status: p.status
-      }));
 
-      const MAX_INPUT_LENGTH = 5000; // Define a maximum input length for proposals
-
-      // Validate and truncate proposals to reduce payload size
-      const truncatedProposals = proposals.slice(0, 5).map(p => {
-        const summaryLength = p.summary?.length || 0;
-        if (summaryLength > MAX_INPUT_LENGTH) {
-          if (p.summary) {
-            p.summary = p.summary.slice(0, MAX_INPUT_LENGTH) + '...';
-          }
-        }
-        return p;
-      });
-
-      const prompt = `
-      Analyze these Internet Computer governance proposals and generate a VERY concise summary (1-2 sentences max).
-      Focus on counting proposals by significant impact categories.
-  
-      Proposals:
-      ${truncatedProposals.map(p => `
-      - ID: ${p.id}
-        Title: ${p.title}
-        Topic: ${p.topic.replace("TOPIC_", "")}
-        ${p.summary ? `Summary: ${p.summary}` : ''}
-      `).join('\n')}
-  
-      Example output format: "3 new proposals today. 2 may affect staking returns. 1 proposes subnet node changes."
-      `;
-  
-      // Ensure prompt isn't too large
-      if (prompt.length > 8000) {
-        throw new Error("Prompt too large for API limits");
+      // 2. Pre-process and categorize before AI summary
+      const categorized = categorizeProposals(proposals);
+      
+      // 3. Generate two-part summary
+      const summaryParts = [];
+      
+      // Part 1: Automated categorization summary
+      summaryParts.push(generateCategorySummary(categorized));
+      
+      // Part 2: AI analysis of most important proposals
+      const importantProposals = getImportantProposals(proposals);
+      if (importantProposals.length > 0) {
+        const aiSummary = await generateAISummary(importantProposals);
+        summaryParts.push(aiSummary);
       }
-  
-      const completion = await axios.post(
-        GROQ_API_URL,
-        {
-          model: "llama3-70b-8192", // Align model with the working summarize function
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert in summarizing Internet Computer governance activity. Provide extremely concise, factual summaries focusing on impact counts."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 500 // Align max_tokens with the working summarize function
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${GROQ_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: DEFAULT_TIMEOUT_MS
-        }
-      );
-  
-      const summary = completion.data.choices[0]?.message?.content || "Error generating summary";
-      const summaryMessage = `📊 Daily Governance Summary (${proposals.length} proposals)\n\n${summary}`;
-  
+
+      // 4. Format final message
+      const summaryMessage = `📊 Daily Governance Digest (${proposals.length} proposals)\n\n` +
+                           `${summaryParts.join("\n\n")}\n\n` +
+                           `🔍 View all: https://dashboard.internetcomputer.org/governance`;
+
       const msg = await client.createTextMessage(summaryMessage);
       await client.sendMessage(msg);
-  
       return res.status(200).json(success(msg));
-  
+
     } catch (error) {
       console.error("Error generating daily summary:", error);
   
@@ -175,4 +124,109 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
   
       return returnErrorMessage(res, client, errorMessage);
     }
+  }
+  // Helper functions:
+
+function categorizeProposals(proposals: Proposal[]): Record<string, number> {
+    const categories: Record<string, number> = {
+      'Network Economics': 0,
+      'Subnet Management': 0,
+      'Governance Changes': 0,
+      'Node Operations': 0,
+      'Other': 0
+    };
+  
+    proposals.forEach(p => {
+      switch(p.topic) {
+        case 'TOPIC_NETWORK_ECONOMICS':
+        case 'TOPIC_NODE_PROVIDER_REWARDS':
+          categories['Network Economics']++;
+          break;
+        case 'TOPIC_SUBNET_MANAGEMENT':
+        case 'TOPIC_SUBNET_RENTAL':
+          categories['Subnet Management']++;
+          break;
+        case 'TOPIC_GOVERNANCE':
+        case 'TOPIC_NEURON_MANAGEMENT':
+          categories['Governance Changes']++;
+          break;
+        case 'TOPIC_NODE_ADMIN':
+        case 'TOPIC_IC_OS_VERSION_DEPLOYMENT':
+          categories['Node Operations']++;
+          break;
+        default:
+          categories['Other']++;
+      }
+    });
+  
+    return categories;
+  }
+  
+  function generateCategorySummary(categories: Record<string, number>): string {
+    const activeCategories = Object.entries(categories)
+      .filter(([_, count]) => count > 0)
+      .map(([name, count]) => `${count} ${name}`);
+  
+    return `• ${activeCategories.join('\n• ')}`;
+  }
+  
+  function getImportantProposals(proposals: Proposal[], limit = 3): Proposal[] {
+    // Sort by potential impact (status + topic)
+    return [...proposals]
+      .sort((a, b) => {
+        // Prioritize OPEN proposals
+        if (a.status === 'OPEN' && b.status !== 'OPEN') return -1;
+        if (b.status === 'OPEN' && a.status !== 'OPEN') return 1;
+        
+        // Then prioritize certain topics
+        const importantTopics = [
+          'TOPIC_NETWORK_ECONOMICS',
+          'TOPIC_SUBNET_MANAGEMENT',
+          'TOPIC_GOVERNANCE'
+        ];
+        const aImportant = importantTopics.includes(a.topic) ? 1 : 0;
+        const bImportant = importantTopics.includes(b.topic) ? 1 : 0;
+        return bImportant - aImportant;
+      })
+      .slice(0, limit);
+  }
+  
+  async function generateAISummary(proposals: Proposal[]): Promise<string> {
+    const prompt = `Analyze these key Internet Computer governance proposals and provide:
+    1. A VERY concise impact summary (1 sentence)
+    2. Any critical voting deadlines
+    3. Potential effects on different stakeholders
+    
+    Proposals: ${proposals.map(p => `
+    - ${p.title} [${p.status}] ${p.deadline_timestamp_seconds ? '(Deadline: ' + new Date(p.deadline_timestamp_seconds * 1000).toLocaleDateString() + ')' : ''}
+      ${p.summary?.substring(0, 150) || ''}`).join('\n')}`;
+  
+    const completion = await axios.post(
+      GROQ_API_URL,
+      {
+        model: "llama3-70b-8192",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert analyst summarizing key governance proposals. Be concise but highlight deadlines and impacts."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 300
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: DEFAULT_TIMEOUT_MS
+      }
+    );
+  
+    return "💡 Key Proposals Analysis:\n" + 
+           (completion.data.choices[0]?.message?.content || "No analysis available");
   }
