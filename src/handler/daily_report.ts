@@ -80,12 +80,15 @@ export async function handleDailySummary(req: withBotClient, res: Response) {
       return res.status(200).json(success(msg));
     }
 
+    // Truncate the proposals to reduce payload size
+    const truncatedProposals = proposals.slice(0, 5); // Limit to 5 proposals
+
     const prompt = `
     Analyze these Internet Computer governance proposals and generate a VERY concise summary (1-2 sentences max).
     Focus on counting proposals by significant impact categories.
 
     Proposals:
-    ${proposals.map(p => `
+    ${truncatedProposals.map(p => `
     - ID: ${p.id}
       Title: ${p.title}
       Topic: ${p.topic.replace("TOPIC_", "")}
