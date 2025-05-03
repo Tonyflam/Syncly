@@ -7,7 +7,7 @@ export async function handleHelp(req: withBotClient, res: Response) {
 
   const BOT_DESCRIPTION = `⚡ **ICPulse - The Intelligent Internet Computer Command Center** ⚡
 
-Your AI-powered Bot for everything ICP. Monitor real-time network vitals, automate governance decisions, and analyze on-chain data with cutting-edge AI insights. Built for developers, node operators, and governance participants who demand precision at blockchain speed.`;
+Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, automate governance decisions, and analyze on-chain data with cutting-edge AI insights. Built for developers, node operators, and governance participants who demand precision at blockchain speed.`;
 
   const commandCategories = [
     {
@@ -67,7 +67,7 @@ Your AI-powered Bot for everything ICP. Monitor real-time network vitals, automa
         {
           name: "proposals",
           description: "Governance proposal browser",
-          details: "Browse all proposals with status/topic filters\n`/proposals status:OPEN topic:GOVERNANCE`",
+          details: "Browse all available proposals",
           emoji: "🗳️"
         },
         {
