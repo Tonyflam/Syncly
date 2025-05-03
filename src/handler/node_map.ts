@@ -1,14 +1,14 @@
 import axios from "axios";
-import { createCanvas } from "canvas";
+import { createCanvas, loadImage } from "canvas";
 import { Response } from "express";
 import { withBotClient } from "../types";
 import { returnErrorMessage, success } from "./helper_functions";
 
-const width = 1200;
-const height = 600;
-
-const BOUNDARY_NODES_URL =
-  "https://ic-api.internetcomputer.org/api/v3/boundary-node-locations?format=json";
+// Configuration
+const WIDTH = 1200;
+const HEIGHT = 600;
+const MAP_BACKGROUND_URL = "https://assets.icpulse.io/world-map-light.png"; // Hosted high-res map
+const BOUNDARY_NODES_URL = "https://ic-api.internetcomputer.org/api/v3/boundary-node-locations?format=json";
 
 interface NodeLocation {
   key: string;
@@ -23,120 +23,142 @@ export async function handleNodeMap(req: withBotClient, res: Response) {
 
   try {
     // Fetch boundary node data
-    const response = await axios.get(BOUNDARY_NODES_URL, { timeout: 5000 });
+    const response = await axios.get(BOUNDARY_NODES_URL, { 
+      timeout: 10000,
+      headers: { "User-Agent": "ICPulse/1.0" }
+    });
     const locations: NodeLocation[] = response.data?.locations || [];
 
     if (locations.length === 0) {
-      return returnErrorMessage(res, client, "No boundary node data available");
+      return returnErrorMessage(res, client, "🌐 No boundary node data available. Try again later.");
     }
 
-    // Generate map image
-    const mapImage = await generateNodeMap(locations);
+    // Generate enhanced map image
+    const mapImage = await generateEnhancedNodeMap(locations);
 
     // Create and send message with image
     const imgMessage = await client.createImageMessage(
       mapImage,
       "image/png",
-      width,
-      height
+      WIDTH,
+      HEIGHT
     );
     imgMessage.setCaption(
-      "🌐 **ICP Node Map**\n\nVisual representation of global node distribution."
+      `🌍 **ICP Global Node Distribution**\n` +
+      `Showing ${locations.length} locations with ` +
+      `${locations.reduce((sum, loc) => sum + loc.total_nodes, 0)} boundary nodes`
     );
     await client.sendMessage(imgMessage);
 
     res.status(200).json(success(imgMessage));
   } catch (error) {
     console.error("Node Map Error:", error);
-
-    const errorMessage =
-      "❌ Failed to generate node map. The network data may be temporarily unavailable.";
-
+    const errorMessage = axios.isAxiosError(error) 
+      ? "🔧 Network data temporarily unavailable. Our team has been notified."
+      : "❌ Failed to generate node map visualization.";
     return returnErrorMessage(res, client, errorMessage);
   }
 }
 
-async function generateNodeMap(locations: NodeLocation[]): Promise<Buffer> {
-  // Create canvas (simple blue background if no map image available)
-  const canvas = createCanvas(width, height);
+async function generateEnhancedNodeMap(locations: NodeLocation[]): Promise<Buffer> {
+  const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
 
-  // Draw background
-  ctx.fillStyle = "#1a3e72"; // Dark blue background
-  ctx.fillRect(0, 0, width, height);
+  try {
+    // Try to load professional map background
+    const mapImg = await loadImage(MAP_BACKGROUND_URL);
+    ctx.drawImage(mapImg, 0, 0, WIDTH, HEIGHT);
+  } catch {
+    // Fallback to gradient background if map fails to load
+    const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+    gradient.addColorStop(0, "#0f2027");
+    gradient.addColorStop(1, "#2c5364");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  }
 
-  // Draw continents (simplified shapes)
-  ctx.fillStyle = "#2d5b6b"; // Continent color
-  // North America (simplified)
-  ctx.beginPath();
-  ctx.moveTo(200, 150);
-  ctx.lineTo(300, 100);
-  ctx.lineTo(400, 150);
-  ctx.lineTo(350, 300);
-  ctx.lineTo(250, 350);
-  ctx.lineTo(150, 250);
-  ctx.closePath();
-  ctx.fill();
+  // Calculate node size range based on distribution
+  const nodeCounts = locations.map(loc => loc.total_nodes);
+  const maxNodes = Math.max(...nodeCounts);
+  const minNodes = Math.min(...nodeCounts);
 
-  // Europe (simplified)
-  ctx.beginPath();
-  ctx.moveTo(550, 150);
-  ctx.lineTo(650, 100);
-  ctx.lineTo(700, 200);
-  ctx.lineTo(650, 250);
-  ctx.closePath();
-  ctx.fill();
-
-  // Asia (simplified)
-  ctx.beginPath();
-  ctx.moveTo(700, 150);
-  ctx.lineTo(900, 100);
-  ctx.lineTo(1000, 200);
-  ctx.lineTo(950, 400);
-  ctx.lineTo(800, 350);
-  ctx.closePath();
-  ctx.fill();
-
-  // Draw node locations
+  // Draw node locations with size based on node count
   locations.forEach((location) => {
     const { latitude, longitude, total_nodes, name } = location;
+    
+    // Convert lat/long to canvas coordinates (Mercator projection)
+    const x = (longitude + 180) * (WIDTH / 360);
+    const y = (90 - latitude) * (HEIGHT / 180);
 
-    // Convert lat/long to canvas coordinates
-    const x = (longitude + 180) * (width / 360);
-    const y = (90 - latitude) * (height / 180);
+    // Dynamic sizing based on node count
+    const baseSize = 8;
+    const sizeScale = 0.8 + (total_nodes - minNodes) / (maxNodes - minNodes) * 6;
+    const radius = baseSize * sizeScale;
 
-    // Draw node marker
-    const radius = 5 + Math.log2(total_nodes);
+    // Draw glowing effect
+    const gradient = ctx.createRadialGradient(x, y, radius * 0.3, x, y, radius * 1.5);
+    gradient.addColorStop(0, "rgba(41, 171, 226, 0.8)");
+    gradient.addColorStop(1, "rgba(41, 171, 226, 0)");
+    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#29abe2"; // ICP blue
+    ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw node count
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 12px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(total_nodes.toString(), x, y);
+    // Draw node marker
+    ctx.fillStyle = "#29abe2"; // ICP blue
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-    // Draw location name for major nodes
-    if (total_nodes >= 3) {
-      ctx.font = "10px Arial";
-      ctx.fillText(name, x, y + radius + 12);
+    // Draw node count for significant locations
+    if (total_nodes >= 3 || radius > 12) {
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${Math.min(14, radius)}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(total_nodes.toString(), x, y);
     }
   });
 
-  // Add legend
+  // Add professional legend
   ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-  ctx.fillRect(20, 20, 200, 50);
+  ctx.roundRect(20, 20, 250, 100, 10);
+  ctx.fill();
+  
   ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("🌐 ICP Boundary Nodes", 40, 45);
+  
   ctx.font = "14px Arial";
-  ctx.fillText(`🌍 ${locations.length} Locations`, 40, 40);
-  ctx.fillText(
-    `🖥️ ${locations.reduce((sum, loc) => sum + loc.total_nodes, 0)} Nodes`,
-    40,
-    60
-  );
+  ctx.fillText(`📍 ${locations.length} Locations`, 40, 70);
+  ctx.fillText(`🖥️ ${nodeCounts.reduce((a, b) => a + b, 0)} Total Nodes`, 40, 95);
+  
+  // Add scale indicator
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.roundRect(WIDTH - 220, HEIGHT - 70, 200, 50, 10);
+  ctx.fill();
+  
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "12px Arial";
+  ctx.fillText("Node Size = Node Count", WIDTH - 120, HEIGHT - 50);
+  
+  // Draw example nodes in scale
+  const drawExampleNode = (x: number, size: number, label: string) => {
+    ctx.fillStyle = "#29abe2";
+    ctx.beginPath();
+    ctx.arc(x, HEIGHT - 35, size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "10px Arial";
+    ctx.fillText(label, x, HEIGHT - 35 + size + 12);
+  };
+  
+  drawExampleNode(WIDTH - 180, 8, "1-2");
+  drawExampleNode(WIDTH - 120, 12, "3-5");
+  drawExampleNode(WIDTH - 60, 16, "6+");
 
   return canvas.toBuffer("image/png");
 }
