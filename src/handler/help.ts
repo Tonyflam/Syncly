@@ -67,7 +67,7 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
         {
           name: "proposals",
           description: "Governance proposal browser",
-          details: "Browse all available proposals",
+          details: "Browse all available proposals \n`/proposals`",
           emoji: "🗳️"
         },
         {
