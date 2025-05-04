@@ -34,7 +34,6 @@ export async function handleTokenTransaction(req: withBotClient, res: Response) 
     );
   }
 
-  limit = BigInt(Math.min(Math.max(Number(limit), 1), MAX_TRANSACTIONS)); // Clamp between 1-25
 
   try {
     const response = await axios.post(`${API_BASE_URL}/api/tx/list`, {
