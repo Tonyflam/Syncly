@@ -26,7 +26,6 @@ import { handleSNSProposals } from "./sns-proposals";
 import { handleSubnetVersions } from "./subnet_versions";
 import { handleDailySummary } from "./daily_report";
 import { handleSummarizeProposal } from "./summarize";
-import { handleTokenTransaction } from "./token_transaction";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -116,9 +115,6 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "summarize_proposal":
       await handleSummarizeProposal(req, res);
-      break;
-    case "token_tx":
-      await handleTokenTransaction(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
