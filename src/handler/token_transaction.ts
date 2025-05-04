@@ -3,7 +3,7 @@ import { withBotClient } from "../types";
 import { returnErrorMessage, success } from "./helper_functions";
 import axios from "axios";
 
-const API_BASE_URL = "https://open-api.icexplorer.io";
+const API_BASE_URL = "https://open-api.icexplorer.io/api/tx/list";
 
 interface Transaction {
   op: string;
