@@ -425,45 +425,6 @@ export default function schema(_: Request, res: Response) {
           },
         ],
       },
-      {
-        name: "token_tx",
-        description: "Fetches latest transactions for a specific token.",
-        placeholder: "Fetching token transaction history...",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [
-          {
-            name: "token_id",
-            required: true,
-            description: "The ID of the token to fetch transactions for.",
-            placeholder: "Enter token ID...",
-            param_type: {
-              StringParam: {
-                min_length: 1,
-                max_length: 100,
-                choices: [],
-                multi_line: false,
-              },
-            },
-          },
-          {
-            name: "limit",
-            required: true,
-            description: "The number of transactions to fetch.",
-            placeholder: "Enter limit... 1 - 20",
-            param_type: {
-              IntegerParam: {
-                min_value: 1,
-                max_value: 100,
-                choices: [],
-              },
-            },
-          }
-        ],
-      },
       
     ],
   });
