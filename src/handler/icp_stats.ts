@@ -46,14 +46,25 @@ export async function handleICPStats(req: withBotClient, res: Response) {
           ][1]
         : "N/A";
 
+    // Format numbers for display
+    const formatValue = (value: number) => {
+      if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+      if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+      return value.toFixed(2);
+    };
+
+    // Format values
+    const formattedTransactionVolume = formatValue(parseFloat(transactionVolume));
+    const formattedAllTimeVolume = formatValue(parseFloat(transactionData.meta?.total_volume_for_all_time || "0"));
+    const formattedBurnRate = formatValue(parseFloat(latestBurnRate));
+    const formattedCirculatingSupply = formatValue(parseFloat(circulatingSupply));
+
     const message =
       `📊 **ICP Stats**\n\n` +
-      `- **Latest Daily Transaction Volume**: ${transactionVolume} ICP (${transactionCount} txns)\n` +
-      `- **All-Time Transaction Volume**: ${
-        transactionData.meta?.total_volume_for_all_time || "N/A"
-      } ICP\n` +
-      `- **Current Cycle Burn Rate**: ${latestBurnRate} cycles\n` +
-      `- **Circulating Supply**: ${circulatingSupply} ICP`;
+      `- **Latest Daily Transaction Volume**: ${formattedTransactionVolume} ICP (${transactionCount} txns)\n` +
+      `- **All-Time Transaction Volume**: ${formattedAllTimeVolume} ICP\n` +
+      `- **Current Cycle Burn Rate**: ${formattedBurnRate} cycles\n` +
+      `- **Circulating Supply**: ${formattedCirculatingSupply} ICP`;
 
     const msg = await client.createTextMessage(message);
     await client.sendMessage(msg);
