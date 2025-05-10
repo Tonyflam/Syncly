@@ -425,7 +425,32 @@ export default function schema(_: Request, res: Response) {
           },
         ],
       },
-      
+      {
+        name: "subnet_lookup",
+        description: "Fetches information about a specific subnet.",
+        placeholder: "Fetching subnet information...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "subnet_id",
+            required: true,
+            description: "The ID of the subnet to fetch information for.",
+            placeholder: "Enter subnet ID...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          }
+        ],
+      },
     ],
   });
 }
