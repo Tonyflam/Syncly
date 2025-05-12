@@ -477,6 +477,88 @@ export default function schema(_: Request, res: Response) {
           }
         ],
       },
+      {
+        name: "sns_simulator",
+        description: "Simulates SNS parameter changes and their impacts.",
+        placeholder: "Simulating SNS parameters...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "dissolve_delay",
+            required: false,
+            description: "The dissolve delay for the neuron (e.g., '2 years').",
+            placeholder: "Enter dissolve delay...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+          {
+            name: "stake",
+            required: false,
+            description: "The initial stake amount (e.g., '1000 ICP').",
+            placeholder: "Enter stake amount...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+          {
+            name: "voting_power",
+            required: false,
+            description: "The voting power of the neuron (e.g., '50000').",
+            placeholder: "Enter voting power...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+          {
+            name: "participation",
+            required: false,
+            description: "The participation scenario ('low', 'medium', or 'high').",
+            placeholder: "Enter participation scenario...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+          {
+            name: "decentralization",
+            required: false,
+            description: "The decentralization scenario ('low', 'medium', or 'high').",
+            placeholder: "Enter decentralization scenario...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          }
+        ],
+      },
     ],
   });
 }
