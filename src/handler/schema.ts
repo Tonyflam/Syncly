@@ -451,6 +451,32 @@ export default function schema(_: Request, res: Response) {
           }
         ],
       },
+      {
+        name: "neuron_health_check",
+        description: "Performs a health check on a specific neuron.",
+        placeholder: "Performing neuron health check...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "neuron_id",
+            required: true,
+            description: "The ID of the neuron to check.",
+            placeholder: "Enter neuron ID...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          }
+        ],
+      },
     ],
   });
 }
