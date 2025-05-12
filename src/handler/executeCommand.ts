@@ -27,6 +27,7 @@ import { handleSubnetVersions } from "./subnet_versions";
 import { handleDailySummary } from "./daily_report";
 import { handleSummarizeProposal } from "./summarize";
 import { handleSubnetLookup } from "./subnet_lookup";
+import { handleNeuronHealthCheck } from "./neuron_health_check";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -119,6 +120,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "subnet_lookup":
       await handleSubnetLookup(req, res);
+      break;
+    case "neuron_health_check":
+      await handleNeuronHealthCheck(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
