@@ -28,7 +28,7 @@ import { handleDailySummary } from "./daily_report";
 import { handleSummarizeProposal } from "./summarize";
 import { handleSubnetLookup } from "./subnet_lookup";
 import { handleNeuronHealthCheck } from "./neuron_health_check";
-import { handleSnsSimulator } from "./sns_simulator";
+import { handleFAQ } from "./faq";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -125,8 +125,8 @@ export default async function executeCommand(req: Request, res: Response) {
     case "neuron_health_check":
       await handleNeuronHealthCheck(req, res);
       break;
-    case "sns_simulator":
-      await handleSnsSimulator(req, res);
+    case "faq":
+      await handleFAQ(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
