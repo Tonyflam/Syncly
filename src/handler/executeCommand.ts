@@ -125,7 +125,7 @@ export default async function executeCommand(req: Request, res: Response) {
     case "neuron_health_check":
       await handleNeuronHealthCheck(req, res);
       break;
-    case "faq":
+    case "icp_faq":
       await handleFAQ(req, res);
       break;
     default:
