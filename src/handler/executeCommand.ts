@@ -29,6 +29,7 @@ import { handleSummarizeProposal } from "./summarize";
 import { handleSubnetLookup } from "./subnet_lookup";
 import { handleNeuronHealthCheck } from "./neuron_health_check";
 import { handleFAQ } from "./faq";
+import { handleSNS } from "./sns";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -127,6 +128,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "icp_faq":
       await handleFAQ(req, res);
+      break;
+    case "sns":
+      await handleSNS(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
