@@ -129,6 +129,12 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           description: "Rewards optimizer",
           details: "Current voting rewards multiplier\n`/maturity_modulation`",
           emoji: "⚡"
+        },
+        {
+          name: "neuron_health_check",
+          description: "Neuron health assessment",
+          details: "Detailed neuron health insights\n`/neuron_health_check neuron_id`",
+          emoji: "🧠"
         }
       ]
     },
@@ -153,6 +159,12 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           description: "Internet Identity adoption",
           details: "Growth metrics for Internet Identity\n`/ii_users`",
           emoji: "👤"
+        },
+        {
+          name: "subnet_lookup",
+          description: "Subnet information tool",
+          details: "Fetch details about a specific subnet\n`/subnet_lookup subnet_id`",
+          emoji: "🔍"
         }
       ]
     },
@@ -195,6 +207,18 @@ Your AI-powered dashboard for everything ICP. Monitor real-time network vitals, 
           description: "ICP vs Ethereum",
           details: "TPS • Fees • Energy use comparison\n`/icp_vs_eth`",
           emoji: "⚖️"
+        }
+      ]
+    },
+    {
+      name: "📚 FAQ & RESOURCES",
+      description: "Frequently asked questions and helpful links",
+      commands: [
+        {
+          name: "faq",
+          description: "Frequently asked questions",
+          details: "Answers to common ICP-related questions\n`/faq [category]`",
+          emoji: "❓"
         }
       ]
     }
