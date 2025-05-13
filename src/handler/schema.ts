@@ -503,6 +503,59 @@ export default function schema(_: Request, res: Response) {
           }
         ],
       },
+      {
+        name: "sns",
+        description: "SNS-related commands: list DAOs, proposals, and documentation.",
+        placeholder: "Choose an SNS command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the SNS commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "List all live SNS DAOs",
+                    value: "sns_list"
+                  },
+                  {
+                    name: "DAO proposals",
+                    value: "sns_proposals"
+                  },
+                  {
+                    name: "SNS documentation",
+                    value: "icp_faq sns"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            name: "input",
+            required: false,
+            description: "Enter ID if required or leave empty.",
+            placeholder: "Enter ID if applicable...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                multi_line: false,
+                choices: []
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
