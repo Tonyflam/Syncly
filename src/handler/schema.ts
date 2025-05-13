@@ -478,7 +478,7 @@ export default function schema(_: Request, res: Response) {
         ],
       },
       {
-        name: "faq",
+        name: "icp_faq",
         description: "Provides answers to frequently asked questions about ICP.",
         placeholder: "Fetching FAQ...",
         default_role: "Participant",
