@@ -689,7 +689,7 @@ Example: /faq sns
   }
 
   // Send the requested category
-  const message = `⚡ **ICPulse FAQ: ${category.toUpperCase()}** ⚡\n${faqSections[category]}\n\n💡 Pro Tip: Try /commands for all available tools!`;
+  const message = `⚡ **ICPulse FAQ: ${category.toUpperCase()}** ⚡\n${faqSections[category]}\n`;
   const faqMessage = await client.createTextMessage(message);
   await client.sendMessage(faqMessage);
   return res.status(200).json(success(faqMessage));
