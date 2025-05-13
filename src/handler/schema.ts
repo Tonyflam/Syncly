@@ -529,13 +529,9 @@ export default function schema(_: Request, res: Response) {
                     value: "sns_list"
                   },
                   {
-                    name: "DAO proposals",
+                    name: "DAO proposals[Enter sns_id in Input]",
                     value: "sns_proposals"
                   },
-                  {
-                    name: "SNS documentation",
-                    value: "icp_faq sns"
-                  }
                 ]
               }
             }
