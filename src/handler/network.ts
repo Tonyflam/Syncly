@@ -25,6 +25,7 @@ axiosRetry(axios, {
 
 // Constants
 const IC_API_BASE = "https://ic-api.internetcomputer.org/api/v3";
+const SUBNET_API_URL = "https://ic-api.internetcomputer.org/api/v4/subnets";
 const MAP_BACKGROUND_URL = "https://assets.icpulse.io/world-map-light.png";
 const WIDTH = 1200;
 const HEIGHT = 600;
@@ -302,12 +303,12 @@ export async function handleNetwork(req: withBotClient, res: Response) {
         return returnErrorMessage(res, client, "❌ Invalid subnet ID format.");
       }
 
-      const response = await axios.get(`${IC_API_BASE}/subnets/${subnetId}`, {
-        timeout: 10000,
-        headers: {
-          Accept: "application/json",
-          "User-Agent": "ICP Governance Bot",
-        },
+      const response =  await axios.get(`${SUBNET_API_URL}/${subnetId}`, {
+       timeout: 10000,
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "ICP Governance Bot",
+      },
       });
 
       const subnetData = response.data;
