@@ -315,16 +315,32 @@ export async function handleNetwork(req: withBotClient, res: Response) {
         return returnErrorMessage(res, client, `❌ No data found for subnet ID: ${subnetId}`);
       }
 
-      const decentralizationInfo = subnetData.decentralization_score ? 
-        `- **Nakamoto Coefficient**: ${subnetData.decentralization_score.nakamoto_coefficient_overall}\n` +
-        `- **Countries**: ${subnetData.total_countries} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients.countries})\n` +
-        `- **Node Providers**: ${subnetData.total_node_providers} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients.node_providers})\n` +
-        `- **Data Centers**: ${subnetData.data_centers?.length || 0} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients.data_centers})\n` :
-        "- **Decentralization data not available**\n";
+      // Format decentralization score information
+      let decentralizationInfo = "";
+      if (subnetData.decentralization_score) {
+        decentralizationInfo =
+          `- **Nakamoto Coefficient**: ${subnetData.decentralization_score.nakamoto_coefficient_overall}\n` +
+          `- **Countries**: ${subnetData.total_countries || 0} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients?.countries || "N/A"})\n` +
+          `- **Node Providers**: ${subnetData.total_node_providers || 0} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients?.node_providers || "N/A"})\n` +
+          `- **Data Centers**: ${subnetData.data_centers?.length || 0} (NC: ${subnetData.decentralization_score.nakamoto_sub_coefficients?.data_centers || "N/A"})\n`;
+      } else {
+        decentralizationInfo = "- **Decentralization data not available**\n";
+      }
 
-      const locations = subnetData.data_centers
-        ? subnetData.data_centers.map((dc: any) => `  • ${dc.region.split(',')[1]?.trim() || dc.name}`).join('\n')
-        : "No location data available";
+      // Format data center locations with fallbacks
+      let locationsInfo = "No location data available";
+      if (subnetData.data_centers && subnetData.data_centers.length > 0) {
+        locationsInfo = subnetData.data_centers
+          .map((dc: any) => {
+            const regionParts = dc.region?.split(',') || [];
+            const locationName = dc.display_name || dc.name || "Unknown";
+            const regionName = regionParts.length > 1 
+              ? regionParts[1].trim() 
+              : (regionParts[0]?.trim() || "Unknown");
+            return `  • ${locationName} (${regionName})`;
+          })
+          .join('\n');
+      }
 
       const message =
         `🌐 **Subnet Information**\n\n` +
@@ -335,11 +351,11 @@ export async function handleNetwork(req: withBotClient, res: Response) {
         `- **Status**: ${subnetData.up_nodes}/${subnetData.total_nodes} nodes up\n\n` +
         `📊 **Decentralization**\n` +
         decentralizationInfo +
-        `\n📍 **Locations**:\n${locations}\n\n` +
+        `\n📍 **Locations**:\n${locationsInfo}\n\n` +
         `💽 **Canisters**:\n` +
-        `- **Running**: ${subnetData.running_canisters}\n` +
-        `- **Stopped**: ${subnetData.stopped_canisters}\n` +
-        `- **Total**: ${subnetData.total_canisters}\n\n` +
+        `- **Running**: ${subnetData.running_canisters || 0}\n` +
+        `- **Stopped**: ${subnetData.stopped_canisters || 0}\n` +
+        `- **Total**: ${subnetData.total_canisters || 0}\n\n` +
         `⚙️ **Performance Metrics**\n` +
         `- **Instruction Rate**: ${subnetData.instruction_rate || "N/A"} instructions/s\n` +
         `- **Message Execution Rate**: ${subnetData.message_execution_rate || "N/A"} messages/s\n` +
