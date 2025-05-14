@@ -609,6 +609,71 @@ export default function schema(_: Request, res: Response) {
           }
         ]
       },
+      {
+        name: "network",
+        description: "Network monitoring commands: status, visualization, and analytics.",
+        placeholder: "Choose a network command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the network commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "ICP Network Status - TPS, node health, memory",
+                    value: "network_status"
+                  },
+                  {
+                    name: "Global ICP nodes visualization",
+                    value: "node_map"
+                  },
+                  {
+                    name: "Subnet Replica version tracking",
+                    value: "subnet_versions"
+                  },
+                  {
+                    name: "ICP Node Providers distribution",
+                    value: "node_providers"
+                  },
+                  {
+                    name: "ICP Energy efficiency report",
+                    value: "energy_stats"
+                  },
+                  {
+                    name: "Subnet details [Enter subnet_id in Input]",
+                    value: "subnet_lookup"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            name: "input",
+            required: false,
+            description: "Enter ID if required or leave empty.",
+            placeholder: "Enter ID if applicable...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                multi_line: false,
+                choices: []
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
