@@ -845,6 +845,41 @@ export default function schema(_: Request, res: Response) {
           }
         ]
       },
+      {
+        name: "analytics",
+        description: "Comparative insights: Ethereum metrics and chain activity trends.",
+        placeholder: "Choose an analytics command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the analytics commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "vs Ethereum metrics",
+                    value: "icp_vs_eth"
+                  },
+                  {
+                    name: "Chain activity trends",
+                    value: "icp_stats"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
