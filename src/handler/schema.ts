@@ -529,9 +529,66 @@ export default function schema(_: Request, res: Response) {
                     value: "sns_list"
                   },
                   {
-                    name: "DAO proposals[Enter sns_id in Input]",
+                    name: "Get DAO proposals[Enter sns_id in Input]",
                     value: "sns_proposals"
                   },
+                ]
+              }
+            }
+          },
+          {
+            name: "input",
+            required: false,
+            description: "Enter ID if required or leave empty.",
+            placeholder: "Enter ID if applicable...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                multi_line: false,
+                choices: []
+              }
+            }
+          }
+        ]
+      },
+      {
+        name: "governance",
+        description: "Governance-related commands: proposals, AI analysis, and voting tools.",
+        placeholder: "Choose a governance command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the governance commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "List active proposals",
+                    value: "proposals"
+                  },
+                  {
+                    name: "Daily Governance Report",
+                    value: "daily_report"
+                  },
+                  {
+                    name: "Summarize a proposal[Enter proposal_id in Input]",
+                    value: "summarize_proposal"
+                  },
+                  {
+                    name: "Proposal Statistics[Enter proposal_id in Input]",
+                    value: "proposal_stats"
+                  }
                 ]
               }
             }
