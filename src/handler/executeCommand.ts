@@ -30,6 +30,7 @@ import { handleSubnetLookup } from "./subnet_lookup";
 import { handleNeuronHealthCheck } from "./neuron_health_check";
 import { handleFAQ } from "./faq";
 import { handleSNS } from "./sns";
+import { handleGovernance } from "./governance";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -131,6 +132,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "sns":
       await handleSNS(req, res);
+      break;
+    case "governance":
+      await handleGovernance(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
