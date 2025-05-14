@@ -674,6 +674,71 @@ export default function schema(_: Request, res: Response) {
           }
         ]
       },
+      {
+        name: "tokens",
+        description: "Token management commands: prices, supply, and conversions.",
+        placeholder: "Choose a token command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the token commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "Real-time ICP price",
+                    value: "icp_price"
+                  },
+                  {
+                    name: "ckBTC/USD peg",
+                    value: "CkBTC_price"
+                  },
+                  {
+                    name: "ICP Circulating supply",
+                    value: "icp_supply"
+                  },
+                  {
+                    name: "ICP → Cycles [Enter amount in Input]",
+                    value: "cycles_calc"
+                  },
+                  {
+                    name: "ICRC token supply [Enter ledger_id in Input]",
+                    value: "icrc_supply"
+                  },
+                  {
+                    name: "ICRC Top wallets [Enter ledger_id in Input]",
+                    value: "icrc_holders"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            name: "input",
+            required: false,
+            description: "Enter ID or amount if required or leave empty.",
+            placeholder: "Enter ID or amount if applicable...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                multi_line: false,
+                choices: []
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
