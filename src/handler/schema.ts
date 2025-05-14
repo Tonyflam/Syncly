@@ -792,6 +792,59 @@ export default function schema(_: Request, res: Response) {
           }
         ]
       },
+      {
+        name: "dev",
+        description: "Developer tools: canister forensics, deployment trends, and Internet Identity stats.",
+        placeholder: "Choose a developer tool command...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "command",
+            required: true,
+            description: "Choose one of the developer tool commands.",
+            placeholder: "Select a command...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "Canister forensics [Enter canister_id in Input]",
+                    value: "canister_search"
+                  },
+                  {
+                    name: "Deployment trends",
+                    value: "canister_growth"
+                  },
+                  {
+                    name: "Internet Identity stats",
+                    value: "ii_users"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            name: "input",
+            required: false,
+            description: "Enter ID if required or leave empty.",
+            placeholder: "Enter ID if applicable...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                multi_line: false,
+                choices: []
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
