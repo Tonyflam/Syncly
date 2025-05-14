@@ -35,6 +35,7 @@ import { handleNetwork } from "./network";
 import { handleTokens } from "./tokens";
 import { handleNeurons } from "./neurons";
 import { handleDev } from "./dev";
+import { handleAnalytics } from "./analytics";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -151,6 +152,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "dev":
       await handleDev(req, res);
+      break;
+    case "analytics":
+      await handleAnalytics(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
