@@ -32,6 +32,7 @@ import { handleFAQ } from "./faq";
 import { handleSNS } from "./sns";
 import { handleGovernance } from "./governance";
 import { handleNetwork } from "./network";
+import { handleTokens } from "./tokens";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -139,6 +140,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "network":
       await handleNetwork(req, res);
+      break;
+    case "tokens":
+      await handleTokens(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
