@@ -701,7 +701,7 @@ export default function schema(_: Request, res: Response) {
                   },
                   {
                     name: "ckBTC/USD peg",
-                    value: "CkBTC_price"
+                    value: "ckbtc_price"
                   },
                   {
                     name: "ICP Circulating supply",
