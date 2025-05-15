@@ -6,11 +6,16 @@ export async function handleFAQ(req: withBotClient, res: Response) {
   const { botClient: client } = req;
   const category = client.stringArg("category");
 
-  // Main FAQ structure
-  const faqSections: Record<string, { title: string; content: string }> = {
-    general: {
-      title: "🌐 General ICP Questions",
-      content: `
+  if (!category) {
+    const errorMessage = `❌ Usage: /faq [category]\n\nAvailable categories:\n- general: General ICP Questions\n- governance: Governance Questions\n- sns: SNS Questions\n- neurons: Neuron Questions\n- resources: Helpful Resources`;
+    return returnErrorMessage(res, client, errorMessage);
+  }
+
+  try {
+    const faqSections: Record<string, { title: string; content: string }> = {
+      general: {
+        title: "🌐 General ICP Questions",
+        content: `
 
 ❓ *What is the Internet Computer (ICP)?*
 The Internet Computer is a blockchain that extends the functionality of the public internet by hosting secure, tamper-proof software and data. It enables web-speed smart contracts that run at web scale.
@@ -667,39 +672,17 @@ Educational:
     `}
   };
 
-  // Default message if no category specified
-  try {
-    // Default message if no category specified
-    if (!category || !faqSections[category]) {
-      const message = `
-⚡ **ICPulse FAQ Center** ⚡
+    const section = faqSections[category];
 
-Browse FAQ categories by typing:
-/faq [category]
-
-Available categories:
-🌐 *general* - Basic ICP concepts
-🗳️ *governance* - NNS and voting
-🌱 *sns* - Service Nervous Systems
-🧠 *neurons* - Neuron management
-📚 *resources* - Helpful links
-
-Example: /faq sns
-      `;
-
-      const faqMessage = await client.createTextMessage(message);
-      await client.sendMessage(faqMessage);
-      return res.status(200).json(success(faqMessage));
+    if (!section) {
+      const errorMessage = `❌ Invalid category: ${category}.\n\nAvailable categories:\n- general: General ICP Questions\n- governance: Governance Questions\n- sns: SNS Questions\n- neurons: Neuron Questions\n- resources: Helpful Resources`;
+      return returnErrorMessage(res, client, errorMessage);
     }
 
-    // Send the requested category
-    const section = faqSections[category];
     const message = `⚡ **${section.title}** ⚡\n${section.content}\n\n_Use /faq to see all categories_`;
-    
     const faqMessage = await client.createTextMessage(message);
     await client.sendMessage(faqMessage);
     return res.status(200).json(success(faqMessage));
-    
   } catch (error) {
     console.error("Error in FAQ command:", error);
     const errorMessage = "❌ Failed to process FAQ request. Please try again later.";
