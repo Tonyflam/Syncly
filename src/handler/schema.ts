@@ -525,11 +525,11 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "List all live SNS DAOs",
+                    name: "sns_list - List all live SNS DAOs",
                     value: "sns_list"
                   },
                   {
-                    name: "Get DAO proposals[Enter sns_id in Input]",
+                    name: "sns_proposals[sns_id] - Get DAO proposals[Enter sns_id in Input]",
                     value: "sns_proposals"
                   },
                 ]
@@ -867,7 +867,7 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "vs Ethereum metrics",
+                    name: "ICP vs Ethereum metrics",
                     value: "icp_vs_eth"
                   },
                   {
