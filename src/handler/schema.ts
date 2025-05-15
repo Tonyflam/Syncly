@@ -66,6 +66,7 @@ export default function schema(_: Request, res: Response) {
               StringParam: {
                 min_length: 1,
                 max_length: 100,
+                multi_line: false,
                 choices: [{
                   name: "General",
                   value: "general",
@@ -87,7 +88,6 @@ export default function schema(_: Request, res: Response) {
                   value: "resources",
                 },
                 ],
-                multi_line: false,
               },
             },
           },
