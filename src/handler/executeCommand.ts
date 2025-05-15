@@ -35,7 +35,7 @@ export default async function executeCommand(req: Request, res: Response) {
     case "daily_report":
       await handleDailySummary(req, res);
       break;
-    case "icp_faq":
+    case "FAQ":
       await handleICPFAQ(req, res);
       break;
     case "sns":
