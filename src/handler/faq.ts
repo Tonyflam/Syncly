@@ -4,7 +4,7 @@ import { returnErrorMessage, success } from "./helper_functions";
 
 export async function handleFAQ(req: withBotClient, res: Response) {
   const { botClient: client } = req;
-  const category = client.stringArg("category")?.toLowerCase();
+  const category = client.stringArg("category");
 
   // Main FAQ structure
   const faqSections: Record<string, string> = {
