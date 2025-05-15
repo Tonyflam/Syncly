@@ -11,6 +11,7 @@ import { handleTokens } from "./tokens";
 import { handleNeurons } from "./neurons";
 import { handleDev } from "./dev";
 import { handleAnalytics } from "./analytics";
+import { handleICPFAQ } from "./icp_faq";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -36,7 +37,7 @@ export default async function executeCommand(req: Request, res: Response) {
       await handleDailySummary(req, res);
       break;
     case "icp_faq":
-      await handleFAQ(req, res);
+      await handleICPFAQ(req, res);
       break;
     case "sns":
       await handleSNS(req, res);
