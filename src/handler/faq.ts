@@ -7,9 +7,10 @@ export async function handleFAQ(req: withBotClient, res: Response) {
   const category = client.stringArg("category");
 
   // Main FAQ structure
-  const faqSections: Record<string, string> = {
-    general: `
-🌐 **General ICP Questions**
+  const faqSections: Record<string, { title: string; content: string }> = {
+    general: {
+      title: "🌐 General ICP Questions",
+      content: `
 
 ❓ *What is the Internet Computer (ICP)?*
 The Internet Computer is a blockchain that extends the functionality of the public internet by hosting secure, tamper-proof software and data. It enables web-speed smart contracts that run at web scale.
@@ -155,10 +156,11 @@ Yes, several NFT marketplaces and projects are already thriving on ICP with uniq
 
 ❓ *What is the future of ICP?*
 To become the backbone of Web3 by hosting most internet services in a decentralized manner.
-    `,
+    `},
     
-    governance: `
-🗳️ **Governance Questions**
+    governance: {
+        title: "🗳️ Governance Questions",
+        content: `
 
 ❓ *What is the NNS?*
 The Network Nervous System is ICP's decentralized governance system where ICP holders can stake tokens in neurons to vote on proposals that control the network.
@@ -313,10 +315,11 @@ Dividing a neuron into two smaller neurons, useful for managing different dissol
 
 ❓ *How do I stay informed about governance?*
 Follow official channels, community forums, and the NNS proposal feed.
-    `,
+    `},
     
-    sns: `
-🌱 **SNS Questions**
+    sns: {
+      title: "🌱 SNS Questions",
+      content: `
 
 ❓ *What is an SNS?*
 A Service Nervous System is a DAO framework on ICP that allows any dapp to decentralize its governance and ownership through tokenization.
@@ -470,10 +473,10 @@ Each SNS designs its own economics rather than following ICP's fixed model.
 
 ❓ *What educational resources exist for SNS?*
 Official documentation, community tutorials, and past SNS launch examples.
-    `,
-    
-    neurons: `
-🧠 **Neuron Questions**
+    ` },
+    neurons: {
+      title: "🧠 Neuron Questions",
+      content: `
 
 ❓ *What is a neuron?*
 A neuron is a staking vehicle in the NNS that locks ICP to participate in governance. Neurons earn voting rewards based on their configuration.
@@ -641,10 +644,11 @@ Currently their primary purpose is governance participation and rewards.
 
 ❓ *What is the future of neurons?*
 Potential enhancements through NNS proposals like new features or reward structures.
-    `,
-    
-    resources: `
-📚 **Helpful Resources**
+    `    },
+    resources: {
+      title: "📚 Helpful Resources",
+      content: `
+
 
 Official Links:
 - [Internet Computer Dashboard](https://dashboard.internetcomputer.org)
@@ -660,15 +664,15 @@ Educational:
 - [ICP White Paper](https://internetcomputer.org/whitepaper.pdf)
 - [How ICP Works](https://internetcomputer.org/how-it-works)
 - [SNS Documentation](https://internetcomputer.org/docs/current/developer-docs/daos/sns/)
-    `
+    `}
   };
 
   // Default message if no category specified
-  if (!category || !faqSections[category]) {
-    const message = `
+  try {
+    // Default message if no category specified
+    if (!category || !faqSections[category]) {
+      const message = `
 ⚡ **ICPulse FAQ Center** ⚡
-
-Welcome to ICPulse - Your Intelligent Internet Computer Command Center!
 
 Browse FAQ categories by typing:
 /faq [category]
@@ -681,16 +685,24 @@ Available categories:
 📚 *resources* - Helpful links
 
 Example: /faq sns
-    `;
+      `;
 
+      const faqMessage = await client.createTextMessage(message);
+      await client.sendMessage(faqMessage);
+      return res.status(200).json(success(faqMessage));
+    }
+
+    // Send the requested category
+    const section = faqSections[category];
+    const message = `⚡ **${section.title}** ⚡\n${section.content}\n\n_Use /faq to see all categories_`;
+    
     const faqMessage = await client.createTextMessage(message);
     await client.sendMessage(faqMessage);
     return res.status(200).json(success(faqMessage));
+    
+  } catch (error) {
+    console.error("Error in FAQ command:", error);
+    const errorMessage = "❌ Failed to process FAQ request. Please try again later.";
+    return returnErrorMessage(res, client, errorMessage);
   }
-
-  // Send the requested category
-  const message = `⚡ **ICPulse FAQ: ${category.toUpperCase()}** ⚡\n${faqSections[category]}\n`;
-  const faqMessage = await client.createTextMessage(message);
-  await client.sendMessage(faqMessage);
-  return res.status(200).json(success(faqMessage));
 }
