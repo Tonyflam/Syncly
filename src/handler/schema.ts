@@ -506,7 +506,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "sns",
         description: "SNS-related commands: list DAOs, proposals, and documentation.",
-        placeholder: "Choose an SNS command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -529,7 +529,7 @@ export default function schema(_: Request, res: Response) {
                     value: "sns_list"
                   },
                   {
-                    name: "sns_proposals[sns_id] - Get DAO proposals[Enter sns_id in Input]",
+                    name: "sns_proposals[sns_id] - Get DAO proposals(Enter sns_id in Input)",
                     value: "sns_proposals"
                   },
                 ]
@@ -555,7 +555,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "governance",
         description: "Governance-related commands: proposals, AI analysis, and voting tools.",
-        placeholder: "Choose a governance command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -574,19 +574,19 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "List active proposals",
+                    name: "proposals - List active proposals",
                     value: "proposals"
                   },
                   {
-                    name: "Daily Governance Report",
+                    name: "daily_report - Daily Governance Report",
                     value: "daily_report"
                   },
                   {
-                    name: "Summarize a proposal[Enter proposal_id in Input]",
+                    name: "summarize_proposal - Summarize a proposal(Enter proposal_id in Input)",
                     value: "summarize_proposal"
                   },
                   {
-                    name: "Proposal Statistics[Enter proposal_id in Input]",
+                    name: "proposal_stats[proposal_id] - Proposal Statistics(Enter proposal_id in Input)",
                     value: "proposal_stats"
                   }
                 ]
@@ -612,7 +612,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "network",
         description: "Network monitoring commands: status, visualization, and analytics.",
-        placeholder: "Choose a network command...",
+        placeholder: "ICPulse is fetching",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -631,27 +631,27 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "ICP Network Status - TPS, node health, memory",
+                    name: "network_status - ICP Network Status(TPS, node health, memory)",
                     value: "network_status"
                   },
                   {
-                    name: "Global ICP nodes visualization",
+                    name: "node_map - Global ICP nodes visualization",
                     value: "node_map"
                   },
                   {
-                    name: "Subnet Replica version tracking",
+                    name: "subnet_versions - Subnet Replica version tracking",
                     value: "subnet_versions"
                   },
                   {
-                    name: "ICP Node Providers distribution",
+                    name: "node_providers - ICP Node Providers distribution",
                     value: "node_providers"
                   },
                   {
-                    name: "ICP Energy efficiency report",
+                    name: "energy_stats - ICP Energy efficiency report",
                     value: "energy_stats"
                   },
                   {
-                    name: "Subnet details [Enter subnet_id in Input]",
+                    name: "subnet_lookup[subnet_id] - Subnet details(Enter subnet_id in Input)",
                     value: "subnet_lookup"
                   }
                 ]
@@ -677,7 +677,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "tokens",
         description: "Token management commands: prices, supply, and conversions.",
-        placeholder: "Choose a token command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -696,27 +696,27 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "Real-time ICP price",
+                    name: "icp_price - Real-time ICP price",
                     value: "icp_price"
                   },
                   {
-                    name: "ckBTC/USD peg",
+                    name: "ckbtc_price - ckBTC/USD price",
                     value: "ckbtc_price"
                   },
                   {
-                    name: "ICP Circulating supply",
+                    name: "icp_supply - ICP Circulating supply",
                     value: "icp_supply"
                   },
                   {
-                    name: "ICP → Cycles [Enter amount in Input]",
+                    name: "cycles_calc[Amount] - ICP → Cycles(Enter amount in Input)",
                     value: "cycles_calc"
                   },
                   {
-                    name: "ICRC token supply [Enter ledger_id in Input]",
+                    name: "icrc_supply - ICRC token supply(Enter ledger_id in Input)",
                     value: "icrc_supply"
                   },
                   {
-                    name: "ICRC Top wallets [Enter ledger_id in Input]",
+                    name: "icrc_holders[ledger_id] - ICRC Top wallets(Enter ledger_id in Input)",
                     value: "icrc_holders"
                   }
                 ]
@@ -742,7 +742,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "neurons",
         description: "Neuron management commands: info, rewards, and health checks.",
-        placeholder: "Choose a neuron command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -761,15 +761,15 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "Voting power/status [Enter neuron_id in Input]",
+                    name: "neuron_info[neuron_id] - Neuron Voting power/status(Enter neuron_id in Input)",
                     value: "neuron_info"
                   },
                   {
-                    name: "Rewards boost",
+                    name: "maturity_modulation - Current ICP maturity modulation",
                     value: "maturity_modulation"
                   },
                   {
-                    name: "Health audit [Enter neuron_id in Input]",
+                    name: "neuron_health_check[neuron_id] - Health audit and recommendation(Enter neuron_id in Input)",
                     value: "neuron_health_check"
                   }
                 ]
@@ -795,7 +795,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "dev",
         description: "Developer tools: canister forensics, deployment trends, and Internet Identity stats.",
-        placeholder: "Choose a developer tool command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -814,15 +814,15 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "Canister forensics [Enter canister_id in Input]",
+                    name: "canister_search[canister_id] - Find Canister Info(Enter canister_id in Input)",
                     value: "canister_search"
                   },
                   {
-                    name: "Deployment trends",
+                    name: "canister_growth - Canister Growth Statistics",
                     value: "canister_growth"
                   },
                   {
-                    name: "Internet Identity stats",
+                    name: "ii_users - Internet Identity stats",
                     value: "ii_users"
                   }
                 ]
@@ -848,7 +848,7 @@ export default function schema(_: Request, res: Response) {
       {
         name: "analytics",
         description: "Comparative insights: Ethereum metrics and chain activity trends.",
-        placeholder: "Choose an analytics command...",
+        placeholder: "ICPulse is fetching...",
         default_role: "Participant",
         permissions: Permissions.encodePermissions({
           ...emptyPermissions,
@@ -867,11 +867,11 @@ export default function schema(_: Request, res: Response) {
                 multi_line: false,
                 choices: [
                   {
-                    name: "ICP vs Ethereum metrics",
+                    name: "icp_vs_eth - ICP vs Ethereum metrics",
                     value: "icp_vs_eth"
                   },
                   {
-                    name: "Chain activity trends",
+                    name: "icp_stats - Chain activity trends",
                     value: "icp_stats"
                   }
                 ]
