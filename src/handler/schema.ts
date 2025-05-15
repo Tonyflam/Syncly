@@ -59,14 +59,34 @@ export default function schema(_: Request, res: Response) {
         params: [
           {
             name: "category",
-            required: false,
-            description: "The FAQ category to fetch (e.g., 'general', 'governance', 'sns', 'neurons', 'resources').",
+            required: true,
+            description: "The FAQ category to fetch .",
             placeholder: "Enter FAQ category...",
             param_type: {
               StringParam: {
                 min_length: 1,
                 max_length: 100,
-                choices: [],
+                choices: [{
+                  name: "General",
+                  value: "general",
+                },
+                {
+                  name: "Governance",
+                  value: "governance",
+                },
+                {
+                  name: "Sns",
+                  value: "sns",
+                },
+                {
+                  name: "Neurons",
+                  value: "neurons",
+                },
+                {
+                  name: "Resources",
+                  value: "resources",
+                },
+                ],
                 multi_line: false,
               },
             },
