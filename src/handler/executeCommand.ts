@@ -1,23 +1,9 @@
 import { commandNotFound } from "@open-ic/openchat-botclient-ts";
 import { Request, Response } from "express";
 import { withBotClient } from "../types";
-import { handleCkBTCPrice } from "./btc_price";
-import { handleCanisterGrowth } from "./canister-growth";
-import { handleCanisterSearch } from "./canisterSearch";
-import { handleCyclesCalc } from "./cycles_calc";
-import { handleEnergyStats } from "./energy-stats";
-import { handleHelp } from "./help";
-import { handleICPVSETH } from "./icp-vs-eth";
 import { handleICPPrice } from "./icp_price";
-import { handleICPStats } from "./icp_stats";
-import { handleICPSupply } from "./icp_supply";
-import { handleICRCHolders } from "./icrc-holders";
-import { handleICRCSupply } from "./icrc-supply";
-import { handleIIUsers } from "./ii-users";
-import { handleMaturityModulation } from "./maturity-modulation";
+import { handleHelp } from "./help";
 import { handleNetworkStatus } from "./network_status";
-import { handleNeuronInfo } from "./neuron_info";
-import { handleNodeProviders } from "./node-providers";
 import { handleNodeMap } from "./node_map";
 import { handleProposalStats } from "./proposal-stats";
 import { handleProposals } from "./proposals";
@@ -77,6 +63,9 @@ export default async function executeCommand(req: Request, res: Response) {
       break;
     case "daily_report":
       await handleDailySummary(req, res);
+      break;
+    case "help":
+      await handleHelp(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
