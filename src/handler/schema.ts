@@ -47,52 +47,7 @@ export default function schema(_: Request, res: Response) {
         }),
         params: [],
       },
-      {
-        name: "faq",
-        description: "Provides answers to frequently asked questions about ICP.",
-        placeholder: "Fetching FAQ...",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [
-          {
-            name: "category",
-            required: true,
-            description: "The FAQ category to fetch .",
-            placeholder: "Enter FAQ category...",
-            param_type: {
-              StringParam: {
-                min_length: 1,
-                max_length: 100,
-                multi_line: false,
-                choices: [{
-                  name: "General",
-                  value: "general",
-                },
-                {
-                  name: "Governance",
-                  value: "governance",
-                },
-                {
-                  name: "Sns",
-                  value: "sns",
-                },
-                {
-                  name: "Neurons",
-                  value: "neurons",
-                },
-                {
-                  name: "Resources",
-                  value: "resources",
-                },
-                ],
-              },
-            },
-          },
-        ],
-      },
+      
       {
         name: "help",
         description: "Returns a list of all commands and their functions.",
