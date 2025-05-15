@@ -481,6 +481,53 @@ export default function schema(_: Request, res: Response) {
           },
         ],
       },
+      {
+        name: "icp_faq",
+        description: "Provides answers to frequently asked questions about ICP.",
+        placeholder: "Choose a FAQ category...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "category",
+            required: true,
+            description: "Select a FAQ category.",
+            placeholder: "Select a category...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 20,
+                multi_line: false,
+                choices: [
+                  {
+                    name: "General",
+                    value: "general"
+                  },
+                  {
+                    name: "Governance",
+                    value: "governance"
+                  },
+                  {
+                    name: "SNS",
+                    value: "sns"
+                  },
+                  {
+                    name: "Neurons",
+                    value: "neurons"
+                  },
+                  {
+                    name: "Resources",
+                    value: "resources"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
     ],
   });
 }
