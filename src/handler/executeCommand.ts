@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { withBotClient } from "../types";
 import { handleHelp } from "./help";
 import { handleICPPrice } from "./icp_price";
-import { handleFAQ } from "./faq";
 import { handleSNS } from "./sns";
 import { handleGovernance } from "./governance";
 import { handleNetwork } from "./network";
