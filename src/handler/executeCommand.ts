@@ -51,98 +51,11 @@ export default async function executeCommand(req: Request, res: Response) {
   console.log("Routing command:", client.commandName);
 
   switch (client.commandName) {
-    case "CkBTC_price":
-      await handleCkBTCPrice(req, res);
-      break;
-    case "icp_price":
-      await handleICPPrice(req, res);
-      break;
-    case "icp_supply":
-      await handleICPSupply(req, res);
-      break;
-    case "network_status":
-      await handleNetworkStatus(req, res);
-      break;
-    case "node_map":
-      await handleNodeMap(req, res);
-      break;
-    case "proposals":
-      await handleProposals(req, res);
-      break;
-    case "neuron_info":
-      await handleNeuronInfo(req, res);
-      break;
-    case "canister_search":
-      await handleCanisterSearch(req, res);
-      break;
-    case "subnet_versions":
-      await handleSubnetVersions(req, res);
-      break;
-    case "cycles_calc":
-      await handleCyclesCalc(req, res);
-      break;
-    case "icp_stats":
-      await handleICPStats(req, res);
-      break;
-    case "proposal_stats":
-      await handleProposalStats(req, res);
-      break;
-    case "maturity_modulation":
-      await handleMaturityModulation(req, res);
-      break;
-    case "canister_growth":
-      await handleCanisterGrowth(req, res);
-      break;
-    case "node_providers":
-      await handleNodeProviders(req, res);
-      break;
-    case "energy_stats":
-      await handleEnergyStats(req, res);
-      break;
-    case "sns_list":
-      await handleSNSList(req, res);
-      break;
-    case "sns_proposals":
-      await handleSNSProposals(req, res);
-      break;
-    case "icrc_supply":
-      await handleICRCSupply(req, res);
-      break;
-    case "icrc_holders":
-      await handleICRCHolders(req, res);
-      break;
-    case "icp_vs_eth":
-      await handleICPVSETH(req, res);
-      break;
-    case "ii_users":
-      await handleIIUsers(req, res);
-      break;
-    case "help":
-      await handleHelp(req, res);
-      break;
-    case "daily_report":
-      await handleDailySummary(req, res);
-      break;
-    case "summarize_proposal":
-      await handleSummarizeProposal(req, res);
-      break;
-    case "subnet_lookup":
-      await handleSubnetLookup(req, res);
-      break;
-    case "neuron_health_check":
-      await handleNeuronHealthCheck(req, res);
-      break;
-    case "icp_faq":
-      await handleFAQ(req, res);
-      break;
-    case "sns":
-      await handleSNS(req, res);
+    case "network":
+      await handleNetwork(req, res);
       break;
     case "governance":
       await handleGovernance(req, res);
-      break;
-    case "network":
-      await handleNetwork(req, res);
       break;
     case "tokens":
       await handleTokens(req, res);
@@ -153,8 +66,17 @@ export default async function executeCommand(req: Request, res: Response) {
     case "dev":
       await handleDev(req, res);
       break;
+    case "sns":
+      await handleSNS(req, res);
+      break;
     case "analytics":
       await handleAnalytics(req, res);
+      break;
+    case "icp_price":
+      await handleICPPrice(req, res);
+      break;
+    case "daily_report":
+      await handleDailySummary(req, res);
       break;
     default:
       res.status(400).send(commandNotFound());
