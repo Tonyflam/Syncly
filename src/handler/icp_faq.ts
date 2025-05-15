@@ -686,8 +686,7 @@ Educational:
   }
 
   const message = `⚡ **ICPulse FAQ: ${category.charAt(0).toUpperCase() + category.slice(1)}**\n\n` +
-    faqs.map((faq, index) => `${index + 1}. ${faq}`).join("\n");
-
+    faqs.join("\n");
   const msg = await client.createTextMessage(message);
   await client.sendMessage(msg);
 
