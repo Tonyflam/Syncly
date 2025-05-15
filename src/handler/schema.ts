@@ -26,6 +26,65 @@ export default function schema(_: Request, res: Response) {
       "ICPulse delivers real-time data, governance tools, and network analytics to streamline your ICP workflow. From tracking live prices (ICP, ckBTC) and converting cycles to monitoring neuron voting power, subnet health, and SNS DAOs, it’s the Swiss Army knife for developers, node operators, and governance participants.",
     commands: [
       {
+        name: "icp_price",
+        description: "Fetch current ICP/USD and ICP/XDR rates.",
+        placeholder: "Retrieving current ICP price and exchange rates...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [],
+      },
+      {
+        name: "daily_report",
+        description: "Provides a daily summary of governance proposals.",
+        placeholder: "Generating daily governance report...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [],
+      },
+      {
+        name: "faq",
+        description: "Provides answers to frequently asked questions about ICP.",
+        placeholder: "Fetching FAQ...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [
+          {
+            name: "category",
+            required: false,
+            description: "The FAQ category to fetch (e.g., 'general', 'governance', 'sns', 'neurons', 'resources').",
+            placeholder: "Enter FAQ category...",
+            param_type: {
+              StringParam: {
+                min_length: 1,
+                max_length: 100,
+                choices: [],
+                multi_line: false,
+              },
+            },
+          },
+        ],
+      },
+      {
+        name: "help",
+        description: "Returns a list of all commands and their functions.",
+        placeholder: "Fetching help menu...",
+        default_role: "Participant",
+        permissions: Permissions.encodePermissions({
+          ...emptyPermissions,
+          message: ["Text"],
+        }),
+        params: [],
+      },
+      {
         name: "network",
         description: "Network monitoring commands: status, visualization, and analytics.",
         placeholder: "ICPulse is fetching",
@@ -48,31 +107,31 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "network_status - ICP Network Status(TPS, node health, memory)",
-                    value: "network_status"
+                    value: "network_status",
                   },
                   {
                     name: "node_map - Global ICP nodes visualization",
-                    value: "node_map"
+                    value: "node_map",
                   },
                   {
                     name: "subnet_versions - Subnet Replica version tracking",
-                    value: "subnet_versions"
+                    value: "subnet_versions",
                   },
                   {
                     name: "node_providers - ICP Node Providers distribution",
-                    value: "node_providers"
+                    value: "node_providers",
                   },
                   {
                     name: "energy_stats - ICP Energy efficiency report",
-                    value: "energy_stats"
+                    value: "energy_stats",
                   },
                   {
                     name: "subnet_lookup[subnet_id] - Subnet details(Enter subnet_id in Input)",
-                    value: "subnet_lookup"
-                  }
-                ]
-              }
-            }
+                    value: "subnet_lookup",
+                  },
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -84,11 +143,11 @@ export default function schema(_: Request, res: Response) {
                 min_length: 1,
                 max_length: 100,
                 multi_line: false,
-                choices: []
-              }
-            }
-          }
-        ]
+                choices: [],
+              },
+            },
+          },
+        ],
       },
       {
         name: "governance",
@@ -113,23 +172,23 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "proposals - List active proposals",
-                    value: "proposals"
+                    value: "proposals",
                   },
                   {
                     name: "daily_report - Daily Governance Report",
-                    value: "daily_report"
+                    value: "daily_report",
                   },
                   {
                     name: "summarize_proposal - Summarize a proposal(Enter proposal_id in Input)",
-                    value: "summarize_proposal"
+                    value: "summarize_proposal",
                   },
                   {
                     name: "proposal_stats[proposal_id] - Proposal Statistics(Enter proposal_id in Input)",
-                    value: "proposal_stats"
-                  }
-                ]
-              }
-            }
+                    value: "proposal_stats",
+                  },
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -170,31 +229,31 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "icp_price - Real-time ICP price",
-                    value: "icp_price"
+                    value: "icp_price",
                   },
                   {
                     name: "ckbtc_price - ckBTC/USD price",
-                    value: "ckbtc_price"
+                    value: "ckbtc_price",
                   },
                   {
                     name: "icp_supply - ICP Circulating supply",
-                    value: "icp_supply"
+                    value: "icp_supply",
                   },
                   {
                     name: "cycles_calc[Amount] - ICP → Cycles(Enter amount in Input)",
-                    value: "cycles_calc"
+                    value: "cycles_calc",
                   },
                   {
                     name: "icrc_supply - ICRC token supply(Enter ledger_id in Input)",
-                    value: "icrc_supply"
+                    value: "icrc_supply",
                   },
                   {
                     name: "icrc_holders[ledger_id] - ICRC Top wallets(Enter ledger_id in Input)",
-                    value: "icrc_holders"
-                  }
-                ]
-              }
-            }
+                    value: "icrc_holders",
+                  },
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -206,11 +265,11 @@ export default function schema(_: Request, res: Response) {
                 min_length: 1,
                 max_length: 100,
                 multi_line: false,
-                choices: []
-              }
-            }
-          }
-        ]
+                choices: [],
+              },
+            },
+          },
+        ],
       },
       {
         name: "neurons",
@@ -235,19 +294,19 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "neuron_info[neuron_id] - Neuron Voting power/status(Enter neuron_id in Input)",
-                    value: "neuron_info"
+                    value: "neuron_info",
                   },
                   {
                     name: "maturity_modulation - Current ICP maturity modulation",
-                    value: "maturity_modulation"
+                    value: "maturity_modulation",
                   },
                   {
                     name: "neuron_health_check[neuron_id] - Health audit and recommendation(Enter neuron_id in Input)",
-                    value: "neuron_health_check"
-                  }
-                ]
-              }
-            }
+                    value: "neuron_health_check",
+                  },
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -259,11 +318,11 @@ export default function schema(_: Request, res: Response) {
                 min_length: 1,
                 max_length: 100,
                 multi_line: false,
-                choices: []
-              }
-            }
-          }
-        ]
+                choices: [],
+              },
+            },
+          },
+        ],
       },
       {
         name: "dev",
@@ -288,19 +347,19 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "canister_search[canister_id] - Find Canister Info(Enter canister_id in Input)",
-                    value: "canister_search"
+                    value: "canister_search",
                   },
                   {
                     name: "canister_growth - Canister Growth Statistics",
-                    value: "canister_growth"
+                    value: "canister_growth",
                   },
                   {
                     name: "ii_users - Internet Identity stats",
-                    value: "ii_users"
-                  }
-                ]
-              }
-            }
+                    value: "ii_users",
+                  },
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -312,11 +371,11 @@ export default function schema(_: Request, res: Response) {
                 min_length: 1,
                 max_length: 100,
                 multi_line: false,
-                choices: []
-              }
-            }
-          }
-        ]
+                choices: [],
+              },
+            },
+          },
+        ],
       },
       {
         name: "sns",
@@ -341,15 +400,15 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "sns_list - List all live SNS DAOs",
-                    value: "sns_list"
+                    value: "sns_list",
                   },
                   {
                     name: "sns_proposals[sns_id] - Get DAO proposals(Enter sns_id in Input)",
-                    value: "sns_proposals"
+                    value: "sns_proposals",
                   },
-                ]
-              }
-            }
+                ],
+              },
+            },
           },
           {
             name: "input",
@@ -361,11 +420,11 @@ export default function schema(_: Request, res: Response) {
                 min_length: 1,
                 max_length: 100,
                 multi_line: false,
-                choices: []
-              }
-            }
-          }
-        ]
+                choices: [],
+              },
+            },
+          },
+        ],
       },
       {
         name: "analytics",
@@ -390,50 +449,17 @@ export default function schema(_: Request, res: Response) {
                 choices: [
                   {
                     name: "icp_vs_eth - ICP vs Ethereum metrics",
-                    value: "icp_vs_eth"
+                    value: "icp_vs_eth",
                   },
                   {
                     name: "icp_stats - Chain activity trends",
-                    value: "icp_stats"
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
-        name: "icp_price",
-        description: "Fetch current ICP/USD and ICP/XDR rates.",
-        placeholder: "Retrieving current ICP price and exchange rates...",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [],
-      },
-      {
-        name: "daily_report",
-        description: "Provides a daily summary of governance proposals.",
-        placeholder: "Generating daily governance report...",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [],
-      },
-      {
-        name: "help",
-        description: "Returns a list of all commands and their functions.",
-        placeholder: "Fetching help menu...",
-        default_role: "Participant",
-        permissions: Permissions.encodePermissions({
-          ...emptyPermissions,
-          message: ["Text"],
-        }),
-        params: [],
+                    value: "icp_stats",
+                  },
+                ],
+              },
+            },
+          },
+        ],
       },
     ],
   });
