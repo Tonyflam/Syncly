@@ -11,6 +11,7 @@ import { handleNeurons } from "./neurons";
 import { handleDev } from "./dev";
 import { handleAnalytics } from "./analytics";
 import { handleICPFAQ } from "./icp_faq";
+import { handleDailySummary } from "./daily_report";
 
 function hasBotClient(req: Request): req is withBotClient {
   return (req as withBotClient).botClient !== undefined;
@@ -32,14 +33,14 @@ export default async function executeCommand(req: Request, res: Response) {
     case "help":
       await handleHelp(req, res);
       break;
-    case "daily_report":
-      await handleDailySummary(req, res);
-      break;
     case "FAQ":
       await handleICPFAQ(req, res);
       break;
     case "sns":
       await handleSNS(req, res);
+      break;
+    case "daily_report":
+      await handleDailySummary(req, res);
       break;
     case "governance":
       await handleGovernance(req, res);
@@ -62,8 +63,4 @@ export default async function executeCommand(req: Request, res: Response) {
     default:
       res.status(400).send(commandNotFound());
   }
-}
-
-function handleDailySummary(req: withBotClient, res: Response<any, Record<string, any>>) {
-  throw new Error("Function not implemented.");
 }
